@@ -81,9 +81,10 @@ const Hero = () => {
               transition={{ delay: 0.2 }}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.25)',
+                background: 'rgba(239,68,68,0.15)',
+                border: '1px solid rgba(239,68,68,0.4)',
                 borderRadius: '999px', padding: '0.35rem 1rem', marginBottom: '2rem',
+                backdropFilter: 'blur(4px)',
               }}
             >
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
@@ -111,12 +112,13 @@ const Hero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               style={{
-                color: 'rgba(255,255,255,0.6)',
+                color: isMobile ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.85)',
                 fontSize: 'clamp(1rem, 1.2vw, 1.1rem)',
                 lineHeight: 1.8,
                 maxWidth: isMobile ? '100%' : '380px',
                 margin: isMobile ? '0 auto 2.5rem' : '0 0 2.5rem',
-                fontWeight: 500
+                fontWeight: 600,
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}
             >
               The world's most curated automotive collection. Engineered for those who demand perfection in every mile.
@@ -135,7 +137,8 @@ const Hero = () => {
                 padding: '1rem 2rem', borderRadius: '0.75rem',
                 fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.07em',
                 textTransform: 'uppercase', textDecoration: 'none',
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                boxShadow: '0 10px 20px rgba(239,68,68,0.3)',
               }}>
                 View Inventory
                 <ArrowRight size={16} />
@@ -143,12 +146,14 @@ const Hero = () => {
 
               <Link to="/about" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(8px)',
                 color: '#fff',
                 padding: '1rem 2rem', borderRadius: '0.75rem',
                 fontWeight: 700, fontSize: '0.8rem', letterSpacing: '0.07em',
                 textTransform: 'uppercase', textDecoration: 'none',
+                transition: 'all 0.3s',
               }}>
                 Our Story
               </Link>
@@ -173,7 +178,7 @@ const Hero = () => {
                   textAlign: isMobile ? 'center' : 'left'
                 }}>
                   <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{stat.value}</div>
-                  <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>{stat.label}</div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: '0.25rem' }}>{stat.label}</div>
                 </div>
               ))}
             </div>
