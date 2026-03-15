@@ -1,3 +1,8 @@
+import React, { useState, useEffect } from 'react'
+import { motion, animate } from 'framer-motion'
+import { Link } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
+
 /* ── No longer using Orb or TiltCard for a cleaner look ── */
 
 const Hero = () => {
