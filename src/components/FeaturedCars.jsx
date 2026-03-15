@@ -11,6 +11,14 @@ const vehicles = [
 ]
 
 const Card3D = ({ car, i }) => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const ref = useRef(null)
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -38,7 +46,9 @@ const Card3D = ({ car, i }) => {
       viewport={{ once: true }}
       transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{
-        rotateX, rotateY, scale,
+        rotateX: isMobile ? 0 : rotateX, 
+        rotateY: isMobile ? 0 : rotateY, 
+        scale,
         transformStyle: 'preserve-3d',
         perspective: 1000,
         cursor: 'pointer',
@@ -111,11 +121,26 @@ const Card3D = ({ car, i }) => {
 }
 
 const FeaturedCars = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <section style={{ padding: '7rem 0', background: '#fff', overflow: 'hidden' }}>
+    <section style={{ padding: isMobile ? '5rem 0' : '7rem 0', background: '#fff', overflow: 'hidden' }}>
       <div className="container">
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3.5rem' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: isMobile ? 'flex-start' : 'flex-end', 
+          justifyContent: isMobile ? 'flex-start' : 'space-between', 
+          gap: isMobile ? '2rem' : '0',
+          marginBottom: isMobile ? '3rem' : '3.5rem' 
+        }}>
           <div>
             <motion.p
               initial={{ opacity: 0, x: -20 }}
@@ -155,7 +180,12 @@ const FeaturedCars = () => {
         </div>
 
         {/* 3D Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.75rem', perspective: '1200px' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
+          gap: isMobile ? '1.5rem' : '1.75rem', 
+          perspective: '1200px' 
+        }}>
           {vehicles.map((car, i) => (
             <Card3D key={car.id} car={car} i={i} />
           ))}

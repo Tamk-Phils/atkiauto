@@ -34,8 +34,17 @@ const milestones = [
 ]
 
 const About = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={{ paddingTop: '5rem', background: '#fff', minHeight: '100vh' }}>
+
 
       {/* ── Hero Banner ── */}
       <section style={{
@@ -55,29 +64,51 @@ const About = () => {
             <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '1rem' }}>
               Since 1996
             </p>
-            <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: '1.5rem' }}>
+            <h1 style={{ 
+              fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', 
+              fontWeight: 900, 
+              color: '#fff', 
+              letterSpacing: '-0.03em', 
+              lineHeight: 1.05, 
+              marginBottom: '1.5rem',
+              textAlign: isMobile ? 'center' : 'left'
+            }}>
               AttkissonAutos —<br />Built on Trust
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '1.1rem', lineHeight: 1.8, maxWidth: '500px', marginBottom: '2.5rem' }}>
+            <p style={{ 
+              color: 'rgba(255,255,255,0.55)', 
+              fontSize: '1.1rem', 
+              lineHeight: 1.8, 
+              maxWidth: isMobile ? '100%' : '500px', 
+              marginBottom: '2.5rem',
+              textAlign: isMobile ? 'center' : 'left'
+            }}>
               For nearly three decades, we've matched discerning drivers with exceptional vehicles. Our story is one of passion, integrity, and an unwavering commitment to excellence.
             </p>
-            <Link to="/inventory" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
-              background: '#fff', color: '#0a0a0b',
-              padding: '0.9rem 1.75rem', borderRadius: '0.625rem',
-              fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.07em',
-              textTransform: 'uppercase', textDecoration: 'none',
-            }}>
-              Browse Our Collection
-              <ArrowRight size={16} />
-            </Link>
+            <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
+              <Link to="/inventory" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
+                background: '#fff', color: '#0a0a0b',
+                padding: '0.9rem 1.75rem', borderRadius: '0.625rem',
+                fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.07em',
+                textTransform: 'uppercase', textDecoration: 'none',
+              }}>
+                Browse Our Collection
+                <ArrowRight size={16} />
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* ── Stats Bar ── */}
-      <section style={{ background: '#ef4444', padding: '2.5rem 0' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', textAlign: 'center' }}>
+      <section style={{ background: '#ef4444', padding: isMobile ? '3rem 0' : '2.5rem 0' }}>
+        <div className="container" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', 
+          gap: isMobile ? '3rem' : '1rem', 
+          textAlign: 'center' 
+        }}>
           {stats.map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
               <div style={{ fontSize: '2.25rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em' }}>{s.value}</div>
@@ -88,8 +119,13 @@ const About = () => {
       </section>
 
       {/* ── Our Story ── */}
-      <section style={{ padding: '7rem 0', background: '#f8fafc' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6rem', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '5rem 0' : '7rem 0', background: '#f8fafc' }}>
+        <div className="container" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+          gap: isMobile ? '4rem' : '6rem', 
+          alignItems: 'center' 
+        }}>
           <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
             <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Our Story</p>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '1.75rem' }}>
@@ -130,10 +166,20 @@ const About = () => {
             <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>What We Stand For</p>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em' }}>Our Core Values</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+            gap: '2rem' 
+          }}>
             {values.map((v, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                style={{ background: '#f8fafc', borderRadius: '1rem', padding: '2rem', border: '1px solid #e2e8f0', transition: 'box-shadow 0.3s' }}
+                style={{ 
+                  background: '#fff', 
+                  borderRadius: '1rem', 
+                  padding: '2rem', 
+                  border: '1px solid #e2e8f0', 
+                  transition: 'box-shadow 0.3s' 
+                }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
               >
@@ -155,7 +201,11 @@ const About = () => {
             <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>The People Behind It</p>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em' }}>Meet Our Team</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+            gap: '2.5rem' 
+          }}>
             {team.map((member, i) => (
               <motion.div key={i} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 style={{ background: '#fff', borderRadius: '1.25rem', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
@@ -175,8 +225,13 @@ const About = () => {
       </section>
 
       {/* ── Location & CTA ── */}
-      <section style={{ padding: '6rem 0', background: '#0a0a0b' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6rem', alignItems: 'center' }}>
+      <section style={{ padding: isMobile ? '5rem 0' : '6rem 0', background: '#0a0a0b' }}>
+        <div className="container" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+          gap: isMobile ? '4rem' : '6rem', 
+          alignItems: 'center' 
+        }}>
           <div>
             <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Visit Us</p>
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>Find Our Showroom</h2>

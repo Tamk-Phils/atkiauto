@@ -26,15 +26,23 @@ const steps = [
 ];
 
 const PurchaseSteps = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <section style={{
-      padding: '10rem 0',
+      padding: isMobile ? '6rem 0' : '10rem 0',
       background: '#0a0a0b',
       color: '#fff',
       overflow: 'hidden'
     }}>
       <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: '8rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '4rem' : '8rem' }}>
           <motion.span
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -65,17 +73,24 @@ const PurchaseSteps = () => {
           </motion.h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4rem', position: 'relative' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
+          gap: isMobile ? '4rem' : '4rem', 
+          position: 'relative' 
+        }}>
           {/* Progress Line */}
-          <div style={{
-            position: 'absolute',
-            top: '40px',
-            left: '10%',
-            right: '10%',
-            height: '2px',
-            background: 'linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.2), transparent)',
-            zIndex: 0
-          }} />
+          {!isMobile && (
+            <div style={{
+              position: 'absolute',
+              top: '40px',
+              left: '10%',
+              right: '10%',
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.2), transparent)',
+              zIndex: 0
+            }} />
+          )}
 
           {steps.map((step, i) => (
             <motion.div

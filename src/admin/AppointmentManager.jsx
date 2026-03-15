@@ -21,6 +21,13 @@ const AppointmentManager = () => {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [newCount, setNewCount] = useState(0)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchAppointments = async () => {
     const { data } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: true })
@@ -58,14 +65,21 @@ const AppointmentManager = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row', 
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: '2rem',
+        gap: '1.5rem'
+      }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
+          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
             Service <span style={{ color: '#ef4444' }}>Appointments</span>
           </h1>
           <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Manage scheduled maintenance — updates are live.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
           {newCount > 0 && (
             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ background: '#ef4444', color: '#fff', borderRadius: '999px', padding: '0.3rem 0.75rem', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Bell size={10} /> +{newCount} new

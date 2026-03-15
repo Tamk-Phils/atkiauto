@@ -5,6 +5,13 @@ import { Send, Check } from 'lucide-react';
 const NewsletterCTA = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,15 +34,16 @@ const NewsletterCTA = () => {
           viewport={{ once: true }}
           style={{
             background: '#0a0a0b',
-            padding: '6rem 4rem',
-            borderRadius: '4rem',
+            padding: isMobile ? '4rem 2rem' : '6rem 4rem',
+            borderRadius: isMobile ? '2.5rem' : '4rem',
             display: 'grid',
-            gridTemplateColumns: '1.2fr 1fr',
-            gap: '6rem',
+            gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr',
+            gap: isMobile ? '3rem' : '6rem',
             alignItems: 'center',
             position: 'relative',
             overflow: 'hidden',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.2)'
+            boxShadow: '0 40px 100px rgba(0,0,0,0.2)',
+            textAlign: isMobile ? 'center' : 'left'
           }}
         >
           {/* Decorative Red Glow */}
@@ -72,10 +80,10 @@ const NewsletterCTA = () => {
               Join the <span style={{ color: '#ef4444' }}>Inner Circle.</span>
             </h2>
             <p style={{
-              fontSize: '1.2rem',
+              fontSize: isMobile ? '1.1rem' : '1.2rem',
               color: '#94a3b8',
               lineHeight: 1.6,
-              maxWidth: '500px'
+              maxWidth: isMobile ? '100%' : '500px'
             }}>
               Get exclusive early access to our rarest inventory and bespoke collection launches before they reach the public market.
             </p>

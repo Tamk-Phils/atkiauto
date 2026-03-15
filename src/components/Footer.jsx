@@ -4,10 +4,10 @@ import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Package } 
 
 const Footer = () => {
   return (
-    <footer className="bg-bg-dark text-white pt-32 pb-16">
+    <footer className="bg-bg-dark text-white pt-20 lg:pt-32 pb-16">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 mb-24">
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16 mb-20 lg:mb-24">
+          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-xl shadow-primary/20">
                 <Package className="text-white" size={24} />

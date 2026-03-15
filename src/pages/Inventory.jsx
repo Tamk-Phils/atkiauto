@@ -19,6 +19,13 @@ const Inventory = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('All')
   const [carTypes, setCarTypes] = useState(['All'])
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   /* ── Fetch from Supabase and subscribe to changes ── */
   useEffect(() => {
@@ -66,7 +73,7 @@ const Inventory = () => {
   }
 
   return (
-    <div style={{ paddingTop: '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
       <div className="container">
         {/* Header */}
         <div style={{ marginBottom: '3rem' }}>
@@ -82,7 +89,18 @@ const Inventory = () => {
         </div>
 
         {/* Filters */}
-        <div style={{ background: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ 
+          background: '#fff', 
+          borderRadius: '1rem', 
+          border: '1px solid #e2e8f0', 
+          padding: isMobile ? '1.25rem' : '1.5rem', 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          flexWrap: 'wrap', 
+          gap: '1rem', 
+          alignItems: 'center', 
+          marginBottom: '2.5rem' 
+        }}>
           <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
             <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
             <input type="text" placeholder="Search make or model..."
@@ -92,7 +110,7 @@ const Inventory = () => {
               onBlur={e => e.target.style.borderColor = '#e2e8f0'}
             />
           </div>
-          <div style={{ position: 'relative', minWidth: '200px' }}>
+          <div style={{ position: 'relative', width: isMobile ? '100%' : '200px' }}>
             <select style={{ ...inputStyle, appearance: 'none', paddingRight: '2.5rem', cursor: 'pointer' }}
               value={filterType} onChange={e => setFilterType(e.target.value)}>
               {carTypes.map(t => <option key={t}>{t}</option>)}
@@ -108,7 +126,11 @@ const Inventory = () => {
 
         {/* Loading skeleton */}
         {loading && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', 
+            gap: '2rem' 
+          }}>
             {[1, 2, 3].map(i => (
               <div key={i} style={{ background: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
                 <div style={{ height: 220, background: 'linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%)', backgroundSize: '400% 100%', animation: 'shimmer 1.5s infinite' }} />

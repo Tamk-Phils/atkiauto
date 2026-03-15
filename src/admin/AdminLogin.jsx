@@ -98,7 +98,7 @@ const AdminLogin = () => {
         <div style={{
           background: 'rgba(255,255,255,0.97)',
           borderRadius: '1.25rem',
-          padding: '2.25rem',
+          padding: window.innerWidth < 640 ? '1.5rem' : '2.25rem',
           boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
           border: '1px solid rgba(255,255,255,0.1)',
         }}>

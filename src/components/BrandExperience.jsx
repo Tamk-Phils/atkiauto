@@ -24,15 +24,30 @@ const blocks = [
 ];
 
 const BrandExperience = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <section style={{
-      padding: '10rem 0',
+      padding: isMobile ? '6rem 0' : '10rem 0',
       background: '#fff',
       position: 'relative',
       zIndex: 1
     }}>
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '8rem', marginBottom: '8rem', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', 
+          gap: isMobile ? '2.5rem' : '8rem', 
+          marginBottom: isMobile ? '4rem' : '8rem', 
+          alignItems: 'center',
+          textAlign: isMobile ? 'center' : 'left'
+        }}>
           <div>
             <motion.span
               initial={{ opacity: 0, x: -20 }}
@@ -85,7 +100,11 @@ const BrandExperience = () => {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+          gap: '2.5rem' 
+        }}>
           {blocks.map((block, i) => (
             <motion.div
               key={i}
@@ -94,12 +113,14 @@ const BrandExperience = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               style={{
-                padding: '4rem 3rem',
+                padding: isMobile ? '3rem 2rem' : '4rem 3rem',
                 background: '#f8fafc',
                 borderRadius: '2.5rem',
                 border: '1px solid #f1f5f9',
                 display: 'flex',
                 flexDirection: 'column',
+                alignItems: isMobile ? 'center' : 'flex-start',
+                textAlign: isMobile ? 'center' : 'left',
                 gap: '2rem',
                 transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
@@ -143,6 +164,7 @@ const BrandExperience = () => {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  justifyContent: isMobile ? 'center' : 'flex-start',
                   gap: '0.75rem',
                   fontSize: '0.9rem',
                   fontWeight: 900,
@@ -153,7 +175,7 @@ const BrandExperience = () => {
                   marginTop: 'auto'
                 }}
               >
-                Learn More <div style={{ width: 30, height: 2, background: '#ef4444' }} />
+                Learn More { !isMobile && <div style={{ width: 30, height: 2, background: '#ef4444' }} /> }
               </motion.div>
             </motion.div>
           ))}

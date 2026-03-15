@@ -28,6 +28,17 @@ const Dashboard = () => {
   const [recentLeads, setRecentLeads] = useState([])
   const [liveActivity, setLiveActivity] = useState([])
   const activityRef = useRef([])
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1024)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024)
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchCounts = async () => {
     const [carsRes, leadsRes, aptsRes] = await Promise.all([
@@ -106,12 +117,19 @@ const Dashboard = () => {
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ 
+        marginBottom: '2.5rem', 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row', 
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        justifyContent: 'space-between',
+        gap: '1rem'
+      }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.375rem' }}>
+          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.375rem' }}>
             Welcome back, <span style={{ color: '#ef4444' }}>Admin</span>
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Here's what's happening at AttkissonAutos right now.</p>
+          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Here's what's happening at AttkissonAutos right now.</p>
         </div>
         {/* Live indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.4rem 1rem' }}>
@@ -121,7 +139,12 @@ const Dashboard = () => {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? (window.innerWidth < 640 ? '1fr' : '1fr 1fr') : 'repeat(4, 1fr)', 
+        gap: '1.25rem', 
+        marginBottom: '2rem' 
+      }}>
         {stats.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} style={card}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -131,15 +154,19 @@ const Dashboard = () => {
               <ArrowUpRight size={14} color="#16a34a" />
             </div>
             <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.4rem' }}>{s.label}</p>
-            <p style={{ fontSize: '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em' }}>{s.value}</p>
+            <p style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em' }}>{s.value}</p>
           </motion.div>
         ))}
       </div>
 
       {/* Bottom Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1.5rem' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', 
+        gap: '1.5rem' 
+      }}>
         {/* Recent Leads */}
-        <div style={card}>
+        <div style={{ ...card, padding: isMobile ? '1.25rem' : '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b' }}>Recent Leads</h2>
             <span style={{ ...badge('red'), cursor: 'pointer' }}>Live</span>
@@ -154,12 +181,12 @@ const Dashboard = () => {
                     {lead.name?.[0]?.toUpperCase() ?? '?'}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0a0a0b', marginBottom: '0.125rem' }}>{lead.name}</p>
-                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0a0a0b', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lead.name}</p>
+                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       <Mail size={10} /> {lead.email}
                     </p>
                   </div>
-                  <span style={badge(lead.status === 'responded' ? 'green' : 'red')}>{lead.status ?? 'new'}</span>
+                  {!isMobile && <span style={badge(lead.status === 'responded' ? 'green' : 'red')}>{lead.status ?? 'new'}</span>}
                 </div>
               ))}
             </div>
@@ -167,7 +194,7 @@ const Dashboard = () => {
         </div>
 
         {/* Live Activity Feed */}
-        <div style={card}>
+        <div style={{ ...card, padding: isMobile ? '1.25rem' : '1.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
             <Zap size={16} color="#ef4444" />
             <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b' }}>Live Activity</h2>

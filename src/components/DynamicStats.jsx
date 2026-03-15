@@ -9,9 +9,17 @@ const stats = [
 ];
 
 const DynamicStats = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <section style={{
-      padding: '12rem 0',
+      padding: isMobile ? '6rem 0' : '12rem 0',
       background: 'radial-gradient(circle at 50% 50%, #1a1a24 0%, #0a0a0b 100%)',
       color: '#fff',
       position: 'relative',
@@ -30,7 +38,11 @@ const DynamicStats = () => {
       }} />
 
       <div className="container relative z-10">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', 
+          gap: isMobile ? '3rem' : '4rem' 
+        }}>
           {stats.map((stat, i) => (
             <motion.div
               key={i}
@@ -45,7 +57,7 @@ const DynamicStats = () => {
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 style={{
-                  fontSize: '5rem',
+                  fontSize: isMobile ? '3rem' : '5rem',
                   fontWeight: 950,
                   color: '#ef4444',
                   letterSpacing: '-0.05em',
@@ -62,11 +74,11 @@ const DynamicStats = () => {
                 margin: '0 auto 1.5rem'
               }} />
               <p style={{
-                fontSize: '0.9rem',
+                fontSize: isMobile ? '0.7rem' : '0.9rem',
                 fontWeight: 800,
                 color: '#94a3b8',
                 textTransform: 'uppercase',
-                letterSpacing: '0.3em'
+                letterSpacing: isMobile ? '0.2em' : '0.3em'
               }}>
                 {stat.label}
               </p>
@@ -74,13 +86,13 @@ const DynamicStats = () => {
           ))}
         </div>
 
-        <div style={{ marginTop: '10rem', textAlign: 'center' }}>
+        <div style={{ marginTop: isMobile ? '6rem' : '10rem', textAlign: 'center' }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             style={{
-              padding: '3rem',
+              padding: isMobile ? '2.5rem 1.5rem' : '3rem',
               borderRadius: '2.5rem',
               background: 'rgba(255, 255, 255, 0.02)',
               border: '1px solid rgba(255, 255, 255, 0.05)',
@@ -89,7 +101,13 @@ const DynamicStats = () => {
               margin: '0 auto'
             }}
           >
-            <h4 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem', italic: true }}>
+            <h4 style={{ 
+              fontSize: isMobile ? '1.1rem' : '1.5rem', 
+              fontWeight: 800, 
+              marginBottom: '1.5rem', 
+              fontStyle: 'italic',
+              lineHeight: 1.5 
+            }}>
               "Engineering is not just about numbers, it's about the soul of the machine."
             </h4>
             <p style={{ color: '#ef4444', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.2em', fontSize: '0.8rem' }}>

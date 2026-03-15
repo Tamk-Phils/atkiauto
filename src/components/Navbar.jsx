@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Search, Menu, X } from 'lucide-react'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  if (location.pathname.startsWith('/admin')) return null
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -52,31 +55,33 @@ const Navbar = () => {
         </Link>
 
         {/* Centered Links — Desktop */}
-        <div className="hidden md:flex" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          <ul style={{ display: 'flex', gap: '2.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
-            {navLinks.map((link) => (
-              <li key={link.name}>
-                <Link to={link.path} style={{
-                  color: 'rgba(255,255,255,0.7)',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.12em',
-                  textDecoration: 'none',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={e => e.target.style.color = '#fff'}
-                onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.7)'}
-                >
-                  {link.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {!isMobileMenuOpen && (
+          <div style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+            <ul style={{ display: 'flex', gap: '2.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.path} style={{
+                    color: 'rgba(255,255,255,0.7)',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.12em',
+                    textDecoration: 'none',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseEnter={e => e.target.style.color = '#fff'}
+                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.7)'}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Right Actions */}
-        <div className="hidden md:flex" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+        <div style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', alignItems: 'center', gap: '1.5rem' }}>
           <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
             <Search size={18} />
           </button>
@@ -97,7 +102,13 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden hidden" style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'none' }}
+        <button style={{ 
+          background: 'none', 
+          border: 'none', 
+          color: '#fff', 
+          cursor: 'pointer', 
+          display: window.innerWidth < 768 ? 'flex' : 'none' 
+        }}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>

@@ -20,6 +20,13 @@ const labelStyle = {
 const Finance = () => {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', income: '', message: '' })
   const [status, setStatus] = useState(null)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -38,9 +45,14 @@ const Finance = () => {
   ]
 
   return (
-    <div style={{ paddingTop: '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
       <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5rem', alignItems: 'start' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+          gap: isMobile ? '4rem' : '5rem', 
+          alignItems: 'start' 
+        }}>
 
           {/* Left: Info */}
           <div>
@@ -80,12 +92,21 @@ const Finance = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '1.25rem', padding: '2.5rem' }}
+            style={{ 
+              background: '#fff', 
+              border: '1px solid #e2e8f0', 
+              borderRadius: '1.25rem', 
+              padding: isMobile ? '1.5rem' : '2.5rem' 
+            }}
           >
             <h2 style={{ fontSize: '1.625rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Apply for Credit</h2>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 <div>
                   <label style={labelStyle}>Full Name</label>
                   <input required type="text" placeholder="John Doe" style={inputStyle}
@@ -102,7 +123,11 @@ const Finance = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 <div>
                   <label style={labelStyle}>Phone Number</label>
                   <input type="tel" placeholder="+1 (555) 000-0000" style={inputStyle}

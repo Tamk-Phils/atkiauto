@@ -145,6 +145,13 @@ const InventoryManager = () => {
   const [editId, setEditId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const showToast = (msg, type = 'error') => {
     setToast({ msg, type })
@@ -244,14 +251,21 @@ const InventoryManager = () => {
         )}
       </AnimatePresence>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row', 
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        justifyContent: 'space-between', 
+        marginBottom: '2rem',
+        gap: '1rem'
+      }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
+          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
             Inventory <span style={{ color: '#ef4444' }}>Manager</span>
           </h1>
           <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Add vehicles with photo uploads — changes are live.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.35rem 0.875rem' }}>
             <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
             <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase' }}>Live</span>
@@ -267,9 +281,18 @@ const InventoryManager = () => {
       <AnimatePresence>
         {showForm && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}>
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '0' : '1.5rem' }}>
             <motion.div initial={{ scale: 0.92, y: 24 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92 }}
-              style={{ background: '#fff', borderRadius: '1.25rem', padding: '2rem', width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto' }}>
+              style={{ 
+                background: '#fff', 
+                borderRadius: isMobile ? '0' : '1.25rem', 
+                padding: isMobile ? '1.5rem' : '2rem', 
+                width: '100%', 
+                maxWidth: 700, 
+                height: isMobile ? '100vh' : 'auto',
+                maxHeight: isMobile ? '100vh' : '90vh', 
+                overflowY: 'auto' 
+              }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0a0a0b' }}>
                   {editId ? 'Edit Vehicle' : 'Add New Vehicle'}
@@ -277,7 +300,11 @@ const InventoryManager = () => {
                 <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
               </div>
 
-              <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <form onSubmit={handleSave} style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 {/* Fields */}
                 {[
                   { key: 'make',   label: 'Make',         placeholder: 'Tesla' },
@@ -321,13 +348,20 @@ const InventoryManager = () => {
                 />
 
                 {/* Actions */}
-                <div style={{ gridColumn: '1/-1', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                <div style={{ 
+                  gridColumn: '1/-1', 
+                  display: 'flex', 
+                  flexDirection: isMobile ? 'column-reverse' : 'row',
+                  gap: '0.75rem', 
+                  justifyContent: 'flex-end', 
+                  marginTop: '1rem' 
+                }}>
                   <button type="button" onClick={() => setShowForm(false)}
-                    style={{ padding: '0.75rem 1.5rem', border: '1.5px solid #e2e8f0', borderRadius: '0.5rem', background: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem' }}>
+                    style={{ width: isMobile ? '100%' : 'auto', padding: '0.75rem 1.5rem', border: '1.5px solid #e2e8f0', borderRadius: '0.5rem', background: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem' }}>
                     Cancel
                   </button>
                   <button type="submit" disabled={saving}
-                    style={{ padding: '0.75rem 1.5rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: saving ? 0.7 : 1 }}>
+                    style={{ width: isMobile ? '100%' : 'auto', padding: '0.75rem 1.5rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: saving ? 0.7 : 1 }}>
                     <Check size={16} />{saving ? 'Saving…' : editId ? 'Save Changes' : 'Add Vehicle'}
                   </button>
                 </div>

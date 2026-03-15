@@ -26,6 +26,13 @@ const Service = () => {
     appointment_date: '', appointment_time: '09:00'
   })
   const [status, setStatus] = useState(null)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -38,22 +45,27 @@ const Service = () => {
   }
 
   return (
-    <div style={{ paddingTop: '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
       <div className="container">
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <div style={{ textAlign: isMobile ? 'left' : 'center', marginBottom: isMobile ? '3rem' : '4rem' }}>
           <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
             Service Centre
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '1rem' }}>
             Precision Care
           </h1>
-          <p style={{ color: '#64748b', maxWidth: '520px', margin: '0 auto', fontSize: '1rem', lineHeight: 1.75 }}>
+          <p style={{ color: '#64748b', maxWidth: '520px', margin: isMobile ? '0' : '0 auto', fontSize: '1rem', lineHeight: 1.75 }}>
             Maintain peak performance with certified technicians and state-of-the-art diagnostic equipment.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '2.5rem', alignItems: 'start' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '280px 1fr', 
+          gap: '2.5rem', 
+          alignItems: 'start' 
+        }}>
 
           {/* Sidebar Info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -93,11 +105,20 @@ const Service = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '1.25rem', padding: '2.5rem' }}
+            style={{ 
+              background: '#fff', 
+              border: '1px solid #e2e8f0', 
+              borderRadius: '1.25rem', 
+              padding: isMobile ? '1.5rem' : '2.5rem' 
+            }}
           >
             <h2 style={{ fontSize: '1.625rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Schedule Appointment</h2>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 <div>
                   <label style={labelStyle}>Full Name</label>
                   <input required type="text" style={inputStyle} value={formData.name}
@@ -114,7 +135,11 @@ const Service = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 <div>
                   <label style={labelStyle}>Service Type</label>
                   <select style={{ ...inputStyle, cursor: 'pointer' }} value={formData.service_type}
@@ -131,7 +156,11 @@ const Service = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
                 <div>
                   <label style={labelStyle}>Preferred Date</label>
                   <input required type="date" style={inputStyle} value={formData.appointment_date}

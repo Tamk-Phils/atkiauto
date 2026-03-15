@@ -13,9 +13,9 @@ const Settings = () => {
 
   return (
     <div className="animate-fade-in">
-      <header className="mb-12">
-        <h1 className="text-4xl font-black mb-2">Portal <span className="text-primary">Settings</span></h1>
-        <p className="text-text-muted">Configure the AttkissonAutos platform to your needs.</p>
+      <header className="mb-8 lg:mb-12">
+        <h1 className="text-2xl lg:text-4xl font-black mb-2">Portal <span className="text-primary">Settings</span></h1>
+        <p className="text-sm lg:text-base text-text-muted">Configure the AttkissonAutos platform to your needs.</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

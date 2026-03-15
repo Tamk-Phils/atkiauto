@@ -8,7 +8,14 @@ const ChatManager = () => {
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
   const scrollRef = useRef()
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   useEffect(() => {
     fetchChats()
@@ -28,9 +35,9 @@ const ChatManager = () => {
       const sub = supabase
         .channel(`chat:${selectedChat.id}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${selectedChat.id}` }, 
-          (payload) => setMessages(prev => [...prev, payload.new])
-        )
-        .subscribe()
+        (payload) => setMessages(prev => [...prev, payload.new])
+      )
+      .subscribe()
 
       return () => supabase.removeChannel(sub)
     }
@@ -69,14 +76,17 @@ const ChatManager = () => {
 
   return (
     <div className="animate-fade-in flex flex-col h-[calc(100vh-160px)]">
-      <header className="mb-8">
-        <h1 className="text-4xl font-black mb-2">Support <span className="text-primary">Center</span></h1>
-        <p className="text-text-muted">Direct real-time communication with your visitors.</p>
+      <header className="mb-6 lg:mb-8">
+        <h1 className="text-2xl lg:text-4xl font-black mb-2">Support <span className="text-primary">Center</span></h1>
+        {!isMobile && <p className="text-text-muted">Direct real-time communication with your visitors.</p>}
       </header>
 
-      <div className="flex-1 flex gap-8 min-h-0">
+      <div className={`flex-1 flex gap-4 lg:gap-8 min-h-0 ${isMobile ? 'flex-col' : ''}`}>
         {/* Chat List */}
-        <div className="w-80 glass-card flex flex-col overflow-hidden">
+        <div className={`
+          glass-card flex flex-col overflow-hidden
+          ${isMobile && selectedChat ? 'hidden' : 'w-full lg:w-80 h-full'}
+        `}>
           <div className="p-4 border-b border-glass-border">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
@@ -88,7 +98,9 @@ const ChatManager = () => {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
-            {chats.map(chat => (
+            {chats.length === 0 ? (
+              <div className="p-8 text-center text-text-muted text-xs">No active chats</div>
+            ) : chats.map(chat => (
               <button
                 key={chat.id}
                 onClick={() => setSelectedChat(chat)}
@@ -109,26 +121,37 @@ const ChatManager = () => {
         </div>
 
         {/* Chat window */}
-        <div className="flex-1 glass-card flex flex-col overflow-hidden">
+        <div className={`
+          flex-1 glass-card flex flex-col overflow-hidden
+          ${isMobile && !selectedChat ? 'hidden' : 'w-full h-full'}
+        `}>
           {selectedChat ? (
             <>
               <div className="p-4 border-b border-glass-border flex justify-between items-center bg-white/2">
                 <div className="flex items-center gap-3">
+                  {isMobile && (
+                    <button 
+                      onClick={() => setSelectedChat(null)}
+                      className="p-2 -ml-2 text-text-muted hover:text-white"
+                    >
+                      <ArrowLeft size={18} />
+                    </button>
+                  )}
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
                     <User size={16} />
                   </div>
                   <div>
                     <h3 className="font-bold text-sm">Visitor_{selectedChat.id.slice(0, 5)}</h3>
-                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Active Chat</p>
+                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Active Now</p>
                   </div>
                 </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 bg-black/10">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 bg-black/10">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                    <div className="max-w-[70%] space-y-1">
-                      <div className={`p-4 rounded-2xl text-sm ${
+                    <div className="max-w-[85%] lg:max-w-[70%] space-y-1">
+                      <div className={`p-3 lg:p-4 rounded-2xl text-sm ${
                         msg.sender === 'admin' 
                           ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/10' 
                           : 'glass border-glass-border text-white rounded-tl-none'
@@ -143,26 +166,26 @@ const ChatManager = () => {
                 ))}
               </div>
 
-              <form onSubmit={handleSend} className="p-4 bg-white/2 border-t border-glass-border flex gap-4">
+              <form onSubmit={handleSend} className="p-4 bg-white/2 border-t border-glass-border flex gap-2 lg:gap-4">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type your response..."
+                  placeholder="Your message..."
                   className="flex-1 bg-white/5 border border-glass-border rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary transition-colors"
                 />
-                <button type="submit" className="btn btn-primary px-6 py-3">
+                <button type="submit" className="w-12 h-12 flex items-center justify-center bg-primary text-white rounded-xl shadow-lg shadow-primary/20">
                   <Send size={18} />
                 </button>
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-12 space-y-4">
-              <div className="w-20 h-20 glass rounded-3xl flex items-center justify-center text-primary/20 mb-4">
-                <MessageSquare size={40} />
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 lg:p-12 space-y-4">
+              <div className="w-16 lg:w-20 h-16 lg:h-20 glass rounded-3xl flex items-center justify-center text-primary/20 mb-4">
+                <MessageSquare size={32} />
               </div>
-              <h2 className="text-xl font-bold">Select a conversation</h2>
-              <p className="text-text-muted max-w-xs text-sm">Pick a user from the left panel to start assisting them in real-time.</p>
+              <h2 className="text-xl font-bold">Inbox</h2>
+              <p className="text-text-muted max-w-xs text-sm">Select a conversation to start assisting visitors.</p>
             </div>
           )}
         </div>

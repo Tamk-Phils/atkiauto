@@ -33,11 +33,19 @@ const reviews = [
 ]
 
 const Reviews = () => {
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
-    <section style={{ padding: '7rem 0', background: '#f8fafc', overflow: 'hidden' }}>
+    <section style={{ padding: isMobile ? '5rem 0' : '7rem 0', background: '#f8fafc', overflow: 'hidden' }}>
       <div className="container">
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '3rem' : '4rem' }}>
           <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
             Elite Clientele
           </p>
@@ -50,7 +58,11 @@ const Reviews = () => {
         </div>
 
         {/* Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+          gap: '2rem' 
+        }}>
           {reviews.map((review, i) => (
             <motion.div
               key={i}
