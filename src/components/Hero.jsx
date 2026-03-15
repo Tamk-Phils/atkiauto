@@ -181,7 +181,19 @@ const Hero = () => {
         </div>
 
         {/* ── Right: Car ── */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ 
+          position: isMobile ? 'absolute' : 'relative',
+          top: isMobile ? '50%' : 'auto',
+          left: isMobile ? '50%' : 'auto',
+          transform: isMobile ? 'translate(-50%, -40%)' : 'none',
+          width: isMobile ? '160%' : '100%',
+          opacity: isMobile ? 0.6 : 1,
+          zIndex: isMobile ? 0 : 1,
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          pointerEvents: isMobile ? 'none' : 'auto'
+        }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -193,12 +205,22 @@ const Hero = () => {
               alt="Luxury Vehicle"
               style={{
                 width: '120%',
-                maxWidth: isMobile ? '500px' : '700px',
+                maxWidth: isMobile ? 'none' : '700px',
                 margin: isMobile ? '0 auto' : '0',
                 display: 'block',
-                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))'
+                filter: isMobile ? 'drop-shadow(0 20px 40px rgba(0,0,0,0.8)) brightness(0.8)' : 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))'
               }}
             />
+
+            {/* Subtle Gradient Mask for mobile readability */}
+            {isMobile && (
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(circle at center, transparent 20%, #0a0a0b 80%)',
+                opacity: 0.4
+              }} />
+            )}
 
             {/* Static Badges for simplified UI */}
             {!isMobile && (
