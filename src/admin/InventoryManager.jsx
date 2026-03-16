@@ -348,14 +348,15 @@ const InventoryManager = () => {
         </div>
 
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full border-collapse min-w-[1000px]">
+          <table className="w-full border-collapse min-w-[1000px] table-fixed">
             <thead>
               <tr className="bg-slate-50/50">
-                {['Vehicle', 'Photos', 'Status', 'Price / Fee', 'Specs', 'Actions'].map(h => (
-                  <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
-                    {h}
-                  </th>
-                ))}
+                <th className="w-[300px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Vehicle</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Photos</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Status</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Price / Fee</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Specs</th>
+                <th className="w-[100px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -371,12 +372,12 @@ const InventoryManager = () => {
                       <motion.tr key={car.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                         className="hover:bg-slate-50/50 transition-colors group"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 overflow-hidden">
                           <div className="flex items-center gap-4">
-                            <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                            <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0 relative">
                               {images[0]
-                                ? <img src={images[0]} alt="" className="w-full h-full object-cover" />
-                                : <div className="w-full h-full flex items-center justify-center"><ImageIcon size={16} className="text-slate-300" /></div>
+                                ? <img src={images[0]} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                                : <div className="absolute inset-0 flex items-center justify-center"><ImageIcon size={16} className="text-slate-300" /></div>
                               }
                             </div>
                             <div className="min-w-0">
@@ -385,11 +386,11 @@ const InventoryManager = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-1 items-center">
+                        <td className="px-6 py-4 overflow-hidden">
+                          <div className="flex gap-1 items-center flex-wrap">
                             {images.slice(0, 3).map((img, idx) => (
-                              <div key={idx} className="w-7 h-7 rounded-md overflow-hidden ring-1 ring-slate-200 shadow-sm shrink-0">
-                                <img src={img} alt="" className="w-full h-full object-cover" />
+                              <div key={idx} className="w-7 h-7 rounded-md overflow-hidden ring-1 ring-slate-200 shadow-sm shrink-0 relative">
+                                <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
                               </div>
                             ))}
                             {images.length > 3 && (
@@ -413,9 +414,9 @@ const InventoryManager = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex flex-col">
+                          <div className="flex flex-col min-w-0">
                             <span className="font-black text-slate-900 text-sm truncate tracking-tight">${parseInt(car.price || 0).toLocaleString()}</span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 whitespace-nowrap">Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 truncate">Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest leading-relaxed">
