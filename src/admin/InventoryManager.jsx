@@ -4,12 +4,7 @@ import { Plus, Search, Edit2, Trash2, X, Check, Upload, Image as ImageIcon, Aler
 import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
-/* ─── Styles ─────────────────────────────────────────── */
-const th = { padding: '0.875rem 1.25rem', fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94a3b8', textAlign: 'left' }
-const td = { padding: '1rem 1.25rem', borderTop: '1px solid #f1f5f9', fontSize: '0.875rem', color: '#334155' }
-const inputStyle = { width: '100%', padding: '0.75rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '0.5rem', fontSize: '0.875rem', fontFamily: 'inherit', background: '#fff', color: '#0f172a', outline: 'none' }
-const labelStyle = { fontSize: '0.6rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: '0.4rem' }
-
+/* ─── Constants ─────────────────────────────────────── */
 const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available', reservation_fee: '' }
 
 /* ─── Image Uploader Component ───────────────────────── */
@@ -62,69 +57,62 @@ const ImageUploader = ({ existingImages = [], onImagesChange }) => {
   }
 
   return (
-    <div style={{ gridColumn: '1/-1' }}>
-      <label style={labelStyle}>Car Photos</label>
+    <div className="sm:col-span-2 mt-4">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Car Photos</label>
 
       {/* Drop Zone */}
       <div
         onDrop={onDrop}
         onDragOver={e => e.preventDefault()}
         onClick={() => inputRef.current?.click()}
-        style={{
-          border: '2px dashed #e2e8f0', borderRadius: '0.75rem',
-          padding: '2rem', textAlign: 'center', cursor: 'pointer',
-          background: '#f8fafc', transition: 'border-color 0.2s, background 0.2s',
-          marginBottom: '1rem',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = '#fff5f5' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#f8fafc' }}
+        className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center cursor-pointer bg-slate-50 hover:border-primary hover:bg-red-50 transition-all mb-4 group"
       >
         <input
           ref={inputRef}
           type="file"
           accept="image/*"
           multiple
-          style={{ display: 'none' }}
+          className="hidden"
           onChange={e => handleFiles(Array.from(e.target.files))}
         />
         {uploading ? (
           <div>
-            <div style={{ width: '100%', height: 6, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden', marginBottom: '0.75rem' }}>
+            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3">
               <motion.div
                 animate={{ width: `${progress}%` }}
-                style={{ height: '100%', background: '#ef4444', borderRadius: 999 }}
+                className="h-full bg-primary rounded-full"
               />
             </div>
-            <p style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600 }}>Uploading… {progress}%</p>
+            <p className="text-slate-500 text-sm font-bold">Uploading… {progress}%</p>
           </div>
         ) : (
           <>
-            <Upload size={28} style={{ color: '#cbd5e1', margin: '0 auto 0.75rem' }} />
-            <p style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <Upload size={32} className="text-slate-300 mx-auto mb-3 group-hover:text-primary transition-colors" />
+            <p className="text-slate-600 text-sm font-bold mb-1">
               Click or drag & drop images here
             </p>
-            <p style={{ color: '#94a3b8', fontSize: '0.75rem' }}>PNG, JPG, WEBP — multiple files supported</p>
+            <p className="text-slate-400 text-xs font-medium">PNG, JPG, WEBP — multiple files supported</p>
           </>
         )}
       </div>
 
       {/* Image Previews */}
       {previews.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div className="flex flex-wrap gap-3">
           {previews.map((url, idx) => (
-            <div key={idx} style={{ position: 'relative', width: 80, height: 80, borderRadius: '0.625rem', overflow: 'hidden', border: idx === 0 ? '2px solid #ef4444' : '1px solid #e2e8f0' }}>
-              <img src={url} alt={`Car photo ${idx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div key={idx} className={`relative w-24 h-24 rounded-xl overflow-hidden shadow-sm border ${idx === 0 ? 'border-primary ring-4 ring-primary/10' : 'border-slate-200'}`}>
+              <img src={url} alt={`Car photo ${idx + 1}`} className="w-full h-full object-cover" />
               {idx === 0 && (
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: '#ef4444', color: '#fff', fontSize: '0.45rem', fontWeight: 800, textAlign: 'center', padding: '2px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Main
+                <div className="absolute bottom-0 left-0 right-0 bg-primary text-white text-[8px] font-black text-center py-0.5 uppercase tracking-widest">
+                  Main Photo
                 </div>
               )}
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeImage(idx) }}
-                style={{ position: 'absolute', top: 2, right: 2, background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '50%', width: 18, height: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}
+                className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black text-white w-6 h-6 rounded-full flex items-center justify-center transition-colors shadow-lg"
               >
-                <X size={10} />
+                <X size={12} />
               </button>
             </div>
           ))}
@@ -145,13 +133,6 @@ const InventoryManager = () => {
   const [editId, setEditId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState(null)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   const showToast = (msg, type = 'error') => {
     setToast({ msg, type })
@@ -182,7 +163,18 @@ const InventoryManager = () => {
   }
 
   const openEdit = (car) => {
-    setForm({ make: car.make, model: car.model, year: car.year, type: car.type || '', price: car.price, fuel: car.fuel || '', mileage: car.mileage || '', transmission: car.transmission || 'Automatic', status: car.status || 'available', reservation_fee: car.reservation_fee || '' })
+    setForm({ 
+      make: car.make, 
+      model: car.model, 
+      year: car.year, 
+      type: car.type || '', 
+      price: car.price, 
+      fuel: car.fuel || '', 
+      mileage: car.mileage || '', 
+      transmission: car.transmission || 'Automatic', 
+      status: car.status || 'available', 
+      reservation_fee: car.reservation_fee || '' 
+    })
     setFormImages(car.images || (car.image_url ? [car.image_url] : []))
     setEditId(car.id)
     setShowForm(true)
@@ -231,48 +223,34 @@ const InventoryManager = () => {
   )
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="relative max-w-full overflow-x-hidden">
       {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
-            style={{
-              position: 'fixed', top: '1.5rem', right: '1.5rem', zIndex: 9999,
-              background: toast.type === 'success' ? '#f0fdf4' : '#fef2f2',
-              border: `1px solid ${toast.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
-              color: toast.type === 'success' ? '#15803d' : '#dc2626',
-              padding: '0.875rem 1.25rem', borderRadius: '0.75rem',
-              fontWeight: 700, fontSize: '0.875rem',
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-              maxWidth: 360,
-            }}>
+            className={`fixed top-6 right-6 z-[9999] px-5 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-2xl max-w-[360px] border ${
+              toast.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
+            }`}>
             <AlertCircle size={16} />{toast.msg}
           </motion.div>
         )}
       </AnimatePresence>
+      
       {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row', 
-        alignItems: isMobile ? 'flex-start' : 'center', 
-        justifyContent: 'space-between', 
-        marginBottom: '2rem',
-        gap: '1rem'
-      }}>
-        <div>
-          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
-            Inventory <span style={{ color: '#ef4444' }}>Manager</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 sm:gap-6 min-w-0">
+        <div className="min-w-0 max-w-full">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate">
+            Inventory <span className="text-primary">Manager</span>
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Add vehicles with photo uploads — changes are live.</p>
+          <p className="text-slate-500 text-[10px] sm:text-sm font-medium truncate max-w-full">Add vehicles with photo uploads — changes are live.</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.35rem 0.875rem' }}>
-            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
-            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase' }}>Live</span>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1 sm:px-3.5 sm:py-1.5 flex-shrink-0">
+            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live</span>
           </div>
           <button onClick={openAdd}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#ef4444', color: '#fff', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '0.625rem', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}>
+            className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap">
             <Plus size={16} /> Add Vehicle
           </button>
         </div>
@@ -282,31 +260,20 @@ const InventoryManager = () => {
       <AnimatePresence>
         {showForm && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '0' : '1.5rem' }}>
-            <motion.div initial={{ scale: 0.92, y: 24 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.92 }}
-              style={{ 
-                background: '#fff', 
-                borderRadius: isMobile ? '0' : '1.25rem', 
-                padding: isMobile ? '1.5rem' : '2rem', 
-                width: '100%', 
-                maxWidth: 700, 
-                height: isMobile ? '100vh' : 'auto',
-                maxHeight: isMobile ? '100vh' : '90vh', 
-                overflowY: 'auto' 
-              }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0a0a0b' }}>
-                  {editId ? 'Edit Vehicle' : 'Add New Vehicle'}
-                </h2>
-                <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}><X size={20} /></button>
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center lg:p-6 overflow-hidden">
+            <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-none lg:rounded-3xl p-6 lg:p-10 w-full max-w-[800px] h-full lg:h-auto lg:max-h-[90vh] overflow-y-auto shadow-2xl relative">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl lg:text-2xl font-black text-[#0a0a0b] tracking-tight italic uppercase">
+                    {editId ? 'Edit' : 'New'} <span className="text-primary">Vehicle</span>
+                  </h2>
+                  <p className="text-text-muted text-xs font-medium">Fill in the details below to update inventory.</p>
+                </div>
+                <button onClick={() => setShowForm(false)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:text-red-500 transition-colors"><X size={20} /></button>
               </div>
 
-              <form onSubmit={handleSave} style={{ 
-                display: 'grid', 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: '1rem' 
-              }}>
-                {/* Fields */}
+              <form onSubmit={handleSave} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {[
                   { key: 'make',   label: 'Make',         placeholder: 'Tesla' },
                   { key: 'model',  label: 'Model',        placeholder: 'Model S' },
@@ -318,53 +285,47 @@ const InventoryManager = () => {
                   { key: 'mileage',label: 'Mileage',      placeholder: '1,200 mi' },
                 ].map(({ key, label, placeholder, type }) => (
                   <div key={key}>
-                    <label style={labelStyle}>{label}</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block leading-none">{label}</label>
                     <input required type={type || 'text'} placeholder={placeholder}
-                      style={inputStyle} value={form[key] || ''}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/5"
+                      value={form[key] || ''}
                       onChange={e => setForm({ ...form, [key]: e.target.value })}
-                      onFocus={e => e.target.style.borderColor = '#ef4444'}
-                      onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                    />
                   </div>
                 ))}
 
                 <div>
-                  <label style={labelStyle}>Transmission</label>
-                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.transmission} onChange={e => setForm({ ...form, transmission: e.target.value })}>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block leading-none">Transmission</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white cursor-pointer"
+                    value={form.transmission} onChange={e => setForm({ ...form, transmission: e.target.value })}>
                     <option>Automatic</option><option>Manual</option>
                   </select>
                 </div>
 
                 <div>
-                  <label style={labelStyle}>Status</label>
-                  <select style={{ ...inputStyle, cursor: 'pointer' }} value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block leading-none">Status</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white cursor-pointer"
+                    value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
                     <option value="available">Available</option>
                     <option value="reserved">Reserved</option>
                     <option value="sold">Sold</option>
                   </select>
                 </div>
 
-                {/* Multi-Image Uploader */}
                 <ImageUploader
                   existingImages={formImages}
                   onImagesChange={setFormImages}
                 />
 
-                {/* Actions */}
-                <div style={{ 
-                  gridColumn: '1/-1', 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column-reverse' : 'row',
-                  gap: '0.75rem', 
-                  justifyContent: 'flex-end', 
-                  marginTop: '1rem' 
-                }}>
+                <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row gap-3 justify-end mt-8 pt-6 border-t border-slate-100">
                   <button type="button" onClick={() => setShowForm(false)}
-                    style={{ width: isMobile ? '100%' : 'auto', padding: '0.75rem 1.5rem', border: '1.5px solid #e2e8f0', borderRadius: '0.5rem', background: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '0.875rem' }}>
+                    className="px-8 py-3.5 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-50 transition-colors">
                     Cancel
                   </button>
                   <button type="submit" disabled={saving}
-                    style={{ width: isMobile ? '100%' : 'auto', padding: '0.75rem 1.5rem', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 800, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', opacity: saving ? 0.7 : 1 }}>
-                    <Check size={16} />{saving ? 'Saving…' : editId ? 'Save Changes' : 'Add Vehicle'}
+                    className="px-8 py-3.5 bg-primary text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                    <Check size={18} />
+                    {saving ? 'Saving…' : editId ? 'Save Changes' : 'Confirm Vehicle'}
                   </button>
                 </div>
               </form>
@@ -374,91 +335,100 @@ const InventoryManager = () => {
       </AnimatePresence>
 
       {/* ── Table ── */}
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '1rem', overflow: 'hidden' }}>
-        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Search size={16} color="#94a3b8" />
-          <input type="text" placeholder="Search by make, model, year…" value={search} onChange={e => setSearch(e.target.value)}
-            style={{ border: 'none', outline: 'none', fontSize: '0.875rem', color: '#0a0a0b', flex: 1, fontFamily: 'inherit', background: 'transparent' }} />
-          <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>{filtered.length} vehicle{filtered.length !== 1 ? 's' : ''}</span>
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm min-w-0 w-full">
+        <div className="p-4 lg:p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative flex-1 w-full">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input type="text" placeholder="Search by make, model, year…" value={search} onChange={e => setSearch(e.target.value)}
+              className="w-full bg-slate-50 border border-transparent rounded-xl py-3 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-200 transition-all" />
+          </div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 italic">
+            {filtered.length} vehicle{filtered.length !== 1 ? 's' : ''} found
+          </span>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full border-collapse min-w-[1000px]">
             <thead>
-              <tr style={{ background: '#f8fafc' }}>
-                {['Vehicle', 'Photos', 'Status', 'Price / Fee', 'Specs', 'Actions'].map(h => <th key={h} style={th}>{h}</th>)}
+              <tr className="bg-slate-50/50">
+                {['Vehicle', 'Photos', 'Status', 'Price / Fee', 'Specs', 'Actions'].map(h => (
+                  <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={6} style={{ ...td, textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>Loading inventory…</td></tr>
+                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">Loading inventory…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} style={{ ...td, textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>No vehicles yet. Click "Add Vehicle" to start.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">No vehicles matched your search.</td></tr>
               ) : (
                 <AnimatePresence>
                   {filtered.map(car => {
-                    const allImages = car.images?.length > 0 ? car.images : (car.image_url ? [car.image_url] : [])
+                    const images = car.images?.length > 0 ? car.images : (car.image_url ? [car.image_url] : [])
                     return (
                       <motion.tr key={car.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        className="hover:bg-slate-50/50 transition-colors group"
                       >
-                        <td style={td}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-                            <div style={{ width: 60, height: 38, borderRadius: '0.5rem', overflow: 'hidden', background: '#f1f5f9', flexShrink: 0 }}>
-                              {allImages[0]
-                                ? <img src={allImages[0]} alt={car.model} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                : <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><ImageIcon size={16} color="#cbd5e1" /></div>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                              {images[0]
+                                ? <img src={images[0]} alt="" className="w-full h-full object-cover" />
+                                : <div className="w-full h-full flex items-center justify-center"><ImageIcon size={16} className="text-slate-300" /></div>
                               }
                             </div>
-                            <div>
-                              <p style={{ fontWeight: 700, color: '#0a0a0b', fontSize: '0.875rem' }}>{car.year} {car.make} {car.model}</p>
-                              <p style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{car.type}</p>
+                            <div className="min-w-0">
+                              <p className="font-black text-slate-900 text-sm truncate uppercase tracking-tight">{car.year} {car.make} {car.model}</p>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate mt-0.5">{car.type}</p>
                             </div>
                           </div>
                         </td>
-                        <td style={td}>
-                          {/* Photo strip */}
-                          <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                            {allImages.slice(0, 3).map((img, idx) => (
-                              <div key={idx} style={{ width: 28, height: 28, borderRadius: '0.375rem', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-                                <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <td className="px-6 py-4">
+                          <div className="flex gap-1 items-center">
+                            {images.slice(0, 3).map((img, idx) => (
+                              <div key={idx} className="w-7 h-7 rounded-md overflow-hidden ring-1 ring-slate-200 shadow-sm shrink-0">
+                                <img src={img} alt="" className="w-full h-full object-cover" />
                               </div>
                             ))}
-                            {allImages.length > 3 && (
-                              <span style={{ fontSize: '0.65rem', color: '#94a3b8', fontWeight: 700 }}>+{allImages.length - 3}</span>
+                            {images.length > 3 && (
+                              <span className="text-[10px] font-black text-slate-400 ml-1">+{images.length - 3}</span>
                             )}
-                            {allImages.length === 0 && <span style={{ fontSize: '0.7rem', color: '#cbd5e1' }}>None</span>}
+                            {images.length === 0 && <span className="text-[10px] font-black text-slate-300 uppercase italic">None</span>}
                           </div>
                         </td>
-                        <td style={td}>
-                          <span style={{
-                            display: 'inline-block', padding: '0.25rem 0.6rem', borderRadius: '999px',
-                            fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
-                            background: car.status === 'available' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)',
-                            color: car.status === 'available' ? '#16a34a' : '#ef4444',
-                            border: `1px solid ${car.status === 'available' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
-                          }}>{car.status}</span>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                            car.status === 'available' ? 'bg-green-50 border-green-100 text-green-600' :
+                            car.status === 'reserved' ? 'bg-amber-50 border-amber-100 text-amber-600' :
+                            'bg-red-50 border-red-100 text-red-600'
+                          }`}>
+                            <div className={`w-1 h-1 rounded-full mr-1.5 ${
+                              car.status === 'available' ? 'bg-green-500' :
+                              car.status === 'reserved' ? 'bg-amber-500' :
+                              'bg-red-500'
+                            }`} />
+                            {car.status}
+                          </span>
                         </td>
-                        <td style={td}>
-                          <div style={{ fontWeight: 800 }}>${parseInt(car.price || 0).toLocaleString()}</div>
-                          <div style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.25rem' }}>Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</div>
-                        </td>
-                        <td style={td}>
-                          <div style={{ fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
-                            <span><span style={{ color: '#94a3b8' }}>Fuel:</span> {car.fuel}</span>
-                            <span><span style={{ color: '#94a3b8' }}>Miles:</span> {car.mileage}</span>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-black text-slate-900 text-sm truncate tracking-tight">${parseInt(car.price || 0).toLocaleString()}</span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 whitespace-nowrap">Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</span>
                           </div>
                         </td>
-                        <td style={td}>
-                          <div style={{ display: 'flex', gap: '0.375rem' }}>
-                            <button onClick={() => openEdit(car)} title="Edit"
-                              style={{ width: 32, height: 32, borderRadius: '0.5rem', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155' }}>
-                              <Edit2 size={14} />
+                        <td className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest leading-relaxed">
+                          <div className="truncate">Fuel: {car.fuel}</div>
+                          <div className="truncate">Miles: {car.mileage}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2">
+                            <button onClick={() => openEdit(car)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-primary hover:border-primary transition-all shadow-sm">
+                              <Edit2 size={16} />
                             </button>
-                            <button onClick={() => handleDelete(car.id)} title="Delete"
-                              style={{ width: 32, height: 32, borderRadius: '0.5rem', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
-                              <Trash2 size={14} />
+                            <button onClick={() => handleDelete(car.id)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-red-400 hover:text-red-600 hover:border-red-200 transition-all shadow-sm">
+                              <Trash2 size={16} />
                             </button>
                           </div>
                         </td>

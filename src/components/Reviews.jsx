@@ -65,27 +65,23 @@ const Reviews = () => {
   }, []);
 
   return (
-    <section style={{ padding: isMobile ? '5rem 0' : '7rem 0', background: '#f8fafc', overflow: 'hidden' }}>
+    <section className="py-20 lg:py-28 bg-[#f8fafc] overflow-hidden">
       <div className="container">
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: isMobile ? '3rem' : '4rem' }}>
-          <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+        <div className="text-center mb-12 lg:mb-16">
+          <p className="text-primary text-[10px] font-black uppercase tracking-[0.22em] mb-3">
             Happy Customers
           </p>
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '1rem' }}>
-            What Our <span style={{ color: '#ef4444' }}>Clients</span> Say
+          <h2 className="text-3xl lg:text-5xl font-black text-[#0a0a0b] tracking-tight mb-4">
+            What Our <span className="text-primary">Clients</span> Say
           </h2>
-          <p style={{ color: '#64748b', maxWidth: '480px', margin: '0 auto', fontSize: '1rem', lineHeight: 1.75 }}>
+          <p className="text-text-muted max-w-[480px] mx-auto text-base leading-relaxed">
             From local professionals to business owners, our clients value reliability. Join the AttkissonAutos family.
           </p>
         </div>
 
         {/* Cards */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(320px, 1fr))', 
-          gap: '2rem' 
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {reviews.map((review, i) => (
             <motion.div
               key={i}
@@ -93,18 +89,7 @@ const Reviews = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              style={{
-                background: '#fff',
-                borderRadius: '1.25rem',
-                border: '1px solid #e2e8f0',
-                padding: '2rem',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative',
-                transition: 'box-shadow 0.3s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
+              className="bg-white rounded-2xl border border-slate-200 p-8 flex flex-col relative transition-all hover:shadow-2xl hover:shadow-slate-200/50 group"
             >
               {/* Quote mark */}
               <div style={{ position: 'absolute', top: '1.5rem', right: '1.75rem', color: '#ef4444', opacity: 0.08 }}>

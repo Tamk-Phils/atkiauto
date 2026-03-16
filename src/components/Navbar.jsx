@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase'
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [user, setUser] = useState(null)
   const location = useLocation()
 
@@ -22,9 +23,18 @@ const Navbar = () => {
   }, [])
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+      if (window.innerWidth >= 768) setIsMobileMenuOpen(false)
+    }
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
+    
+    window.addEventListener('resize', handleResize)
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   if (location.pathname.startsWith('/admin')) return null
@@ -69,8 +79,8 @@ const Navbar = () => {
         </Link>
 
         {/* Centered Links — Desktop */}
-        {!isMobileMenuOpen && (
-          <div style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+        {!isMobile && (
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
             <ul style={{ display: 'flex', gap: '2.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
               {navLinks.map((link) => (
                 <li key={link.name}>
@@ -95,56 +105,60 @@ const Navbar = () => {
         )}
 
         {/* Right Actions */}
-        <div style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', alignItems: 'center', gap: '1.5rem' }}>
-          <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
-            <Search size={18} />
-          </button>
-          
-          {user ? (
-            <Link to="/dashboard" style={{
-              background: 'rgba(255,255,255,0.05)',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)',
-              padding: '0.6rem 1.25rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.7rem',
-              fontWeight: 800,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              textDecoration: 'none',
-              transition: 'all 0.2s',
-            }}>
-              Dashboard
-            </Link>
-          ) : (
-            <Link to="/auth" style={{
-              background: '#fff',
-              color: '#0a0a0b',
-              padding: '0.6rem 1.25rem',
-              borderRadius: '0.5rem',
-              fontSize: '0.7rem',
-              fontWeight: 800,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              textDecoration: 'none',
-              transition: 'all 0.2s',
-            }}>
-              Join Now
-            </Link>
-          )}
-        </div>
+        {!isMobile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
+              <Search size={18} />
+            </button>
+            
+            {user ? (
+              <Link to="/dashboard" style={{
+                background: 'rgba(255,255,255,0.05)',
+                color: '#fff',
+                border: '1px solid rgba(255,255,255,0.1)',
+                padding: '0.6rem 1.25rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                transition: 'all 0.2s',
+              }}>
+                Dashboard
+              </Link>
+            ) : (
+              <Link to="/auth" style={{
+                background: '#fff',
+                color: '#0a0a0b',
+                padding: '0.6rem 1.25rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                transition: 'all 0.2s',
+              }}>
+                Join Now
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Mobile Toggle */}
-        <button style={{ 
-          background: 'none', 
-          border: 'none', 
-          color: '#fff', 
-          cursor: 'pointer', 
-          display: window.innerWidth < 768 ? 'flex' : 'none' 
-        }}
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {isMobile && (
+          <button style={{ 
+            background: 'none', 
+            border: 'none', 
+            color: '#fff', 
+            cursor: 'pointer', 
+            display: 'flex'
+          }}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
       </div>
 
       {/* Mobile Menu */}

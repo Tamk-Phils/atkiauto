@@ -4,31 +4,13 @@ import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Search, Bell } 
 import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
-const th = { padding: '0.875rem 1.25rem', fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94a3b8', textAlign: 'left' }
-const td = { padding: '1rem 1.25rem', borderTop: '1px solid #f1f5f9', fontSize: '0.875rem', color: '#334155' }
-
-const statusStyle = (s) => ({
-  display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '999px',
-  fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
-  ...(s === 'confirmed'
-    ? { background: 'rgba(34,197,94,0.08)', color: '#16a34a', border: '1px solid rgba(34,197,94,0.2)' }
-    : s === 'cancelled'
-    ? { background: 'rgba(239,68,68,0.08)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }
-    : { background: 'rgba(245,158,11,0.08)', color: '#d97706', border: '1px solid rgba(245,158,11,0.2)' }),
-})
+/* ─── Components ─── */
 
 const AppointmentManager = () => {
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [newCount, setNewCount] = useState(0)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   const fetchAppointments = async () => {
     const { data } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: true })
@@ -65,95 +47,109 @@ const AppointmentManager = () => {
   )
 
   return (
-    <div>
-      <div style={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row', 
-        alignItems: isMobile ? 'flex-start' : 'center', 
-        justifyContent: 'space-between', 
-        marginBottom: '2rem',
-        gap: '1.5rem'
-      }}>
-        <div>
-          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.25rem' }}>
-            Service <span style={{ color: '#ef4444' }}>Appointments</span>
+    <div className="max-w-full overflow-x-hidden">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate">
+            Service <span className="text-primary">Appointments</span>
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Manage scheduled maintenance — updates are live.</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium truncate">Manage scheduled maintenance — updates are live.</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'space-between' : 'flex-end' }}>
+        <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
           {newCount > 0 && (
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ background: '#ef4444', color: '#fff', borderRadius: '999px', padding: '0.3rem 0.75rem', fontSize: '0.65rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} 
+              className="bg-primary text-white rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 flex items-center gap-1.5">
               <Bell size={10} /> +{newCount} new
             </motion.div>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.35rem 0.875rem' }}>
-            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} style={{ width: 6, height: 6, borderRadius: '50%', background: '#16a34a' }} />
-            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase' }}>Live</span>
+          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-3.5 py-1.5 leading-none">
+            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live</span>
           </div>
         </div>
       </div>
 
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '1rem', overflow: 'hidden' }}>
-        <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Search size={16} color="#94a3b8" />
-          <input type="text" placeholder="Search by name, service or email…" value={search} onChange={e => setSearch(e.target.value)}
-            style={{ border: 'none', outline: 'none', fontSize: '0.875rem', color: '#0a0a0b', flex: 1, fontFamily: 'inherit', background: 'transparent' }} />
-          <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>{filtered.length} appointment{filtered.length !== 1 ? 's' : ''}</span>
+      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm min-w-0 w-full">
+        <div className="p-4 lg:p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-4">
+          <div className="relative flex-1 w-full">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input type="text" placeholder="Search by name, service or email…" value={search} onChange={e => setSearch(e.target.value)}
+              className="w-full bg-slate-50 border border-transparent rounded-xl py-3 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-200 transition-all" />
+          </div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 italic">
+            {filtered.length} appointment{filtered.length !== 1 ? 's' : ''}
+          </span>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full border-collapse min-w-[900px]">
             <thead>
-              <tr style={{ background: '#f8fafc' }}>
-                {['Customer', 'Date & Time', 'Service', 'Status', 'Actions'].map(h => <th key={h} style={th}>{h}</th>)}
+              <tr className="bg-slate-50/50">
+                {['Customer', 'Date & Time', 'Service', 'Status', 'Actions'].map(h => (
+                  <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={5} style={{ ...td, textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>Loading appointments…</td></tr>
+                <tr><td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">Loading appointments…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={5} style={{ ...td, textAlign: 'center', color: '#94a3b8', padding: '3rem' }}>No appointments found.</td></tr>
+                <tr><td colSpan={5} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">No appointments found.</td></tr>
               ) : (
                 <AnimatePresence>
                   {filtered.map((apt) => (
                     <motion.tr key={apt.id} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      className="hover:bg-slate-50/50 transition-colors group"
                     >
-                      <td style={td}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.8rem', color: '#0a0a0b', flexShrink: 0 }}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-xs text-slate-900 shrink-0">
                             {apt.name?.[0]?.toUpperCase() ?? '?'}
                           </div>
-                          <div>
-                            <p style={{ fontWeight: 700, color: '#0a0a0b', fontSize: '0.875rem' }}>{apt.name}</p>
-                            <p style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{apt.email}</p>
+                          <div className="min-w-0">
+                            <p className="font-black text-slate-900 text-sm mb-0.5 truncate uppercase tracking-tight">{apt.name}</p>
+                            <p className="text-[10px] font-bold text-slate-400 truncate">{apt.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td style={td}>
-                        <p style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-                          <CalendarIcon size={12} color="#ef4444" />{apt.appointment_date}
+                      <td className="px-6 py-4">
+                        <p className="font-black text-slate-900 text-sm flex items-center gap-1.5 mb-1 uppercase tracking-tight">
+                          <CalendarIcon size={12} className="text-primary" />{apt.appointment_date}
                         </p>
-                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                          <Clock size={11} />{apt.appointment_time}
+                        <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
+                          <Clock size={12} className="text-slate-300" />{apt.appointment_time}
                         </p>
                       </td>
-                      <td style={td}>
-                        <span style={{ background: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '0.375rem', fontSize: '0.65rem', fontWeight: 700, color: '#475569' }}>
+                      <td className="px-6 py-4">
+                        <span className="bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200">
                           {apt.service_type}
                         </span>
                       </td>
-                      <td style={td}><span style={statusStyle(apt.status)}>{apt.status ?? 'pending'}</span></td>
-                      <td style={td}>
-                        <div style={{ display: 'flex', gap: '0.375rem' }}>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                          apt.status === 'confirmed' ? 'bg-green-50 border-green-100 text-green-600' : 
+                          apt.status === 'cancelled' ? 'bg-red-50 border-red-100 text-red-600' : 
+                          'bg-amber-50 border-amber-100 text-amber-600'
+                        }`}>
+                          <div className={`w-1 h-1 rounded-full mr-1.5 ${
+                            apt.status === 'confirmed' ? 'bg-green-500' : 
+                            apt.status === 'cancelled' ? 'bg-red-500' : 
+                            'bg-amber-500'}`} 
+                          />
+                          {apt.status ?? 'pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
                           <button title="Confirm" onClick={() => updateStatus(apt.id, 'confirmed')}
-                            style={{ width: 32, height: 32, borderRadius: '0.5rem', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
-                            <CheckCircle2 size={15} />
+                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-green-500 hover:border-green-200 hover:bg-green-50 transition-all shadow-sm">
+                            <CheckCircle2 size={16} />
                           </button>
                           <button title="Cancel" onClick={() => updateStatus(apt.id, 'cancelled')}
-                            style={{ width: 32, height: 32, borderRadius: '0.5rem', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
-                            <XCircle size={15} />
+                             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-red-400 hover:text-red-600 hover:border-red-200 transition-all shadow-sm">
+                            <XCircle size={16} />
                           </button>
                         </div>
                       </td>

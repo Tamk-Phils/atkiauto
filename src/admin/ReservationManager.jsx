@@ -1,53 +1,45 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Phone, CheckCircle2, Search, Trash2, Clock } from 'lucide-react'
+import { Mail, Phone, CheckCircle2, Search, Trash2, Clock, Car } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
-const statusStyle = (status) => ({
-  display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '999px',
-  fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em',
-  background: status === 'responded' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)',
-  color: status === 'responded' ? '#16a34a' : '#ef4444',
-  border: `1px solid ${status === 'responded' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
-})
+/* ─── Components ─── */
 
-const th = { padding: '0.875rem 1.25rem', fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94a3b8', textAlign: 'left' }
-const td = { padding: '1rem 1.25rem', borderTop: '1px solid #f1f5f9', fontSize: '0.875rem', color: '#334155' }
-
-const LeadManager = () => {
-  const [leads, setLeads] = useState([])
+const ReservationManager = () => {
+  const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [newCount, setNewCount] = useState(0)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  const fetchLeads = async () => {
-    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
-    if (data) setLeads(data)
+  const fetchReservations = async () => {
+    const { data } = await supabase
+      .from('reservations')
+      .select(`
+        *,
+        cars (make, model, year, price),
+        profiles (full_name, email)
+      `)
+      .order('created_at', { ascending: false })
+    
+    if (data) setReservations(data)
     setLoading(false)
   }
 
   useEffect(() => {
-    fetchLeads()
+    fetchReservations()
 
-    const channel = supabase.channel('rt-leads-manager')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, (payload) => {
-        setLeads(prev => [payload.new, ...prev])
+    const channel = supabase.channel('rt-reservations-manager')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reservations' }, (payload) => {
+        fetchReservations() // Refetch to get joined data
         setNewCount(c => c + 1)
         setTimeout(() => setNewCount(c => Math.max(0, c - 1)), 5000)
       })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leads' }, (payload) => {
-        setLeads(prev => prev.map(l => l.id === payload.new.id ? payload.new : l))
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'reservations' }, (payload) => {
+        fetchReservations()
       })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'leads' }, (payload) => {
-        setLeads(prev => prev.filter(l => l.id !== payload.old.id))
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'reservations' }, (payload) => {
+        setReservations(prev => prev.filter(r => r.id !== payload.old.id))
       })
       .subscribe()
 
@@ -55,15 +47,17 @@ const LeadManager = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
-    await adminSupabase.from('leads').update({ status }).eq('id', id)
+    const { error } = await adminSupabase.from('reservations').update({ status }).eq('id', id)
+    if (!error) fetchReservations()
   }
 
-  const deleteLead = async (id) => {
-    await adminSupabase.from('leads').delete().eq('id', id)
+  const deleteReservation = async (id) => {
+    const { error } = await adminSupabase.from('reservations').delete().eq('id', id)
+    if (!error) fetchReservations()
   }
 
-  const filtered = leads.filter(l =>
-    `${l.name ?? ''} ${l.email ?? ''}`.toLowerCase().includes(search.toLowerCase())
+  const filtered = reservations.filter(r =>
+    `${r.profiles?.full_name ?? ''} ${r.profiles?.email ?? ''} ${r.cars?.make ?? ''} ${r.cars?.model ?? ''}`.toLowerCase().includes(search.toLowerCase())
   )
 
   return (
@@ -71,9 +65,9 @@ const LeadManager = () => {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6">
         <div className="min-w-0">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate">
-            Customer <span className="text-primary">Leads</span>
+            Vehicle <span className="text-primary">Reservations</span>
           </h1>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium truncate">Track inquiries and new contacts.</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium truncate">Manage customer bookings and pending deposits.</p>
         </div>
         <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
           {newCount > 0 && (
@@ -84,7 +78,7 @@ const LeadManager = () => {
           )}
           <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-3.5 py-1.5 leading-none">
             <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live Monitor</span>
+            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live Monitoring</span>
           </div>
         </div>
       </div>
@@ -95,7 +89,7 @@ const LeadManager = () => {
           <div className="relative flex-1 w-full">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
-              type="text" placeholder="Search by name or email…"
+              type="text" placeholder="Search by customer or car…"
               value={search} onChange={e => setSearch(e.target.value)}
               className="w-full bg-slate-50 border border-transparent rounded-xl py-3 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-200 transition-all"
             />
@@ -106,10 +100,10 @@ const LeadManager = () => {
         </div>
 
         <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full border-collapse min-w-[900px]">
+          <table className="w-full border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-slate-50/50">
-                {['Customer', 'Type', 'Status', 'Message', 'Date', 'Actions'].map(h => (
+                {['Customer', 'Vehicle', 'Fee', 'Status', 'Date', 'Actions'].map(h => (
                   <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
                     {h}
                   </th>
@@ -118,53 +112,65 @@ const LeadManager = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">Loading leads…</td></tr>
+                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">Loading reservations…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">No inquiries found.</td></tr>
+                <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-400 font-bold text-sm italic">No reservations found.</td></tr>
               ) : (
                 <AnimatePresence>
-                  {filtered.map((lead) => (
-                    <motion.tr key={lead.id} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  {filtered.map((res) => (
+                    <motion.tr key={res.id} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                       className="hover:bg-slate-50/50 transition-colors group"
                     >
                       <td className="px-6 py-4">
-                        <p className="font-black text-slate-900 text-sm mb-1 uppercase tracking-tight">{lead.name}</p>
-                        <div className="flex flex-col gap-1">
-                          <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 truncate"><Mail size={12} className="text-slate-300" />{lead.email}</span>
-                          {lead.phone && <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 truncate"><Phone size={12} className="text-slate-300" />{lead.phone}</span>}
+                        <p className="font-black text-slate-900 text-sm mb-1 uppercase tracking-tight">{res.profiles?.full_name || 'Guest User'}</p>
+                        <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 truncate">
+                          <Mail size={12} className="text-slate-300" />{res.profiles?.email}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
+                            <Car size={16} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-black text-slate-900 text-xs mb-0.5 truncate uppercase tracking-tight">{res.cars?.year} {res.cars?.make}</p>
+                            <p className="text-[10px] font-bold text-slate-400 truncate">{res.cars?.model}</p>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="bg-slate-100 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-slate-500 border border-slate-200">
-                          {lead.type}
-                        </span>
+                        <p className="font-black text-primary text-sm tracking-tight">${parseFloat(res.fee).toLocaleString()}</p>
+                        <p className={`text-[9px] font-black uppercase tracking-widest mt-0.5 ${res.payment_status === 'paid' ? 'text-green-500' : 'text-slate-400'}`}>
+                          {res.payment_status}
+                        </p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
-                          lead.status === 'responded' ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-600'
+                          res.status === 'completed' ? 'bg-green-50 border-green-100 text-green-600' : 
+                          res.status === 'paid' ? 'bg-blue-50 border-blue-100 text-blue-600' : 
+                          'bg-red-50 border-red-100 text-red-600'
                         }`}>
-                          <div className={`w-1 h-1 rounded-full mr-1.5 ${lead.status === 'responded' ? 'bg-green-500' : 'bg-red-500'}`} />
-                          {lead.status ?? 'new'}
+                          <div className={`w-1 h-1 rounded-full mr-1.5 ${
+                            res.status === 'completed' ? 'bg-green-500' : 
+                            res.status === 'paid' ? 'bg-blue-500' : 
+                            'bg-red-500'}`} 
+                          />
+                          {res.status ?? 'pending'}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 max-w-[240px]">
-                        <p className="text-xs font-medium text-slate-500 truncate" title={lead.message}>
-                          {lead.message || '—'}
-                        </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                          <Clock size={12} className="text-slate-300" />{new Date(lead.created_at).toLocaleDateString()}
+                          <Clock size={12} className="text-slate-300" />{new Date(res.created_at).toLocaleDateString()}
                         </span>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
-                          <button onClick={() => updateStatus(lead.id, lead.status === 'responded' ? 'new' : 'responded')}
+                          <button onClick={() => updateStatus(res.id, res.status === 'completed' ? 'pending' : 'completed')}
                             title="Toggle status"
                             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-green-500 hover:border-green-200 hover:bg-green-50 transition-all shadow-sm">
                             <CheckCircle2 size={16} />
                           </button>
-                          <button onClick={() => deleteLead(lead.id)} title="Delete"
+                          <button onClick={() => deleteReservation(res.id)} title="Delete"
                             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-red-400 hover:text-red-600 hover:border-red-200 transition-all shadow-sm">
                             <Trash2 size={16} />
                           </button>
@@ -182,4 +188,4 @@ const LeadManager = () => {
   )
 }
 
-export default LeadManager
+export default ReservationManager

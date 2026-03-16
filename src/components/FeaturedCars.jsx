@@ -42,14 +42,15 @@ const Card3D = ({ car, i }) => {
       viewport={{ once: true }}
       transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       style={{
-        rotateX: isMobile ? 0 : rotateX, 
-        rotateY: isMobile ? 0 : rotateY, 
+        rotateX: rotateX, 
+        rotateY: rotateY, 
         scale,
         transformStyle: 'preserve-3d',
         perspective: 1000,
         cursor: 'pointer',
         position: 'relative',
       }}
+      className="hidden lg:block"
     >
       {/* Glow highlight that follows cursor */}
       <motion.div style={{
@@ -124,6 +125,24 @@ const Card3D = ({ car, i }) => {
   )
 }
 
+const MobileCard = ({ car }) => (
+  <Link to={`/inventory/${car.id}`} className="block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="aspect-[16/10] bg-slate-100 overflow-hidden">
+      <img src={car.images?.[0] || car.image_url} alt="" className="w-full h-full object-cover" />
+    </div>
+    <div className="p-5">
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-lg font-black text-slate-900">{car.make} {car.model}</h3>
+        <span className="text-primary font-black">${parseInt(car.price || 0).toLocaleString()}</span>
+      </div>
+      <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{car.type}</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1">Details <ArrowRight size={10} /></span>
+      </div>
+    </div>
+  </Link>
+)
+
 const FeaturedCars = () => {
   const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
   const [vehicles, setVehicles] = React.useState([])
@@ -149,17 +168,10 @@ const FeaturedCars = () => {
   }, []);
 
   return (
-    <section style={{ padding: isMobile ? '5rem 0' : '7rem 0', background: '#fff', overflow: 'hidden' }}>
+    <section className="py-20 lg:py-28 bg-white overflow-hidden">
       <div className="container">
         {/* Header */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: isMobile ? 'flex-start' : 'flex-end', 
-          justifyContent: isMobile ? 'flex-start' : 'space-between', 
-          gap: isMobile ? '2rem' : '0',
-          marginBottom: isMobile ? '3rem' : '3.5rem' 
-        }}>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12 lg:mb-14">
           <div>
             <motion.p
               initial={{ opacity: 0, x: -20 }}
@@ -198,14 +210,8 @@ const FeaturedCars = () => {
           </motion.div>
         </div>
 
-        {/* 3D Cards Grid */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
-          gap: isMobile ? '1.5rem' : '1.5rem', 
-          perspective: '1200px',
-          minHeight: '400px'
-        }}>
+        {/* Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:perspective-[1200px] min-h-[400px]">
           {loading ? (
             <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>Loading collection...</div>
           ) : vehicles.length === 0 ? (
@@ -214,12 +220,15 @@ const FeaturedCars = () => {
             vehicles.map((car, i) => (
               <motion.div
                 key={car.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
+                className="w-full"
               >
-                <Card3D car={car} i={i} />
+                {/* 3D on Desktop, Simple on Mobile */}
+                <div className="hidden lg:block"><Card3D car={car} i={i} /></div>
+                <div className="block lg:hidden"><MobileCard car={car} /></div>
               </motion.div>
             ))
           )}

@@ -15,6 +15,7 @@ import Settings from './admin/Settings'
 import ChatManager from './admin/ChatManager'
 import AdminLogin from './admin/AdminLogin'
 import UserManager from './admin/UserManager'
+import ReservationManager from './admin/ReservationManager'
 import ProtectedRoute from './admin/ProtectedRoute'
 import Auth from './pages/Auth'
 import UserDashboard from './pages/UserDashboard'
@@ -53,6 +54,8 @@ function App() {
               <Route path="appointments" element={<AppointmentManager />} />
               <Route path="chats" element={<ChatManager />} />
               <Route path="users" element={<UserManager />} />
+              <Route path="leads" element={<LeadManager />} />
+              <Route path="reservations" element={<ReservationManager />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

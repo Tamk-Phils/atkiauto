@@ -1,44 +1,51 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Users, Car, Calendar, DollarSign,
-  TrendingUp, ArrowUpRight, ArrowDownRight,
-  Mail, CheckCircle2, Clock, Zap
+  Users, Car, Calendar,
+  ArrowUpRight,
+  Mail, Clock, Zap
 } from 'lucide-react'
-import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
-
-/* ── Shared admin style tokens ── */
-const card = {
-  background: '#fff', border: '1px solid #e2e8f0',
-  borderRadius: '1rem', padding: '1.5rem',
-}
-const badge = (color) => ({
-  display: 'inline-block',
-  padding: '0.25rem 0.75rem',
-  borderRadius: '999px',
-  fontSize: '0.6rem', fontWeight: 800,
-  textTransform: 'uppercase', letterSpacing: '0.1em',
-  background: color === 'red' ? 'rgba(239,68,68,0.08)' : 'rgba(34,197,94,0.08)',
-  color: color === 'red' ? '#ef4444' : '#16a34a',
-  border: `1px solid ${color === 'red' ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)'}`,
-})
 
 const Dashboard = () => {
   const [counts, setCounts] = useState({ cars: 0, leads: 0, appointments: 0, users: 0 })
   const [recentLeads, setRecentLeads] = useState([])
   const [liveActivity, setLiveActivity] = useState([])
   const activityRef = useRef([])
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
-  const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth < 1024)
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024)
-      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024)
+    fetchCounts()
+    fetchRecentLeads()
+
+    const leadsChannel = adminSupabase.channel('rt-leads-admin')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, (p) => {
+        fetchCounts()
+        fetchRecentLeads()
+        pushActivity(`🔔 New lead: ${p.new.name ?? 'visitor'}`)
+      })
+      .subscribe()
+
+    const aptsChannel = adminSupabase.channel('rt-appointments-admin')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (p) => {
+        fetchCounts()
+        if (p.eventType === 'INSERT') pushActivity(`📅 New appointment: ${p.new.name ?? 'user'}`)
+        if (p.eventType === 'UPDATE') pushActivity(`✅ Appointment updated → ${p.new.status}`)
+      })
+      .subscribe()
+
+    const carsChannel = adminSupabase.channel('rt-cars-admin')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cars' }, (p) => {
+        fetchCounts()
+        if (p.eventType === 'INSERT') pushActivity(`🚗 New vehicle in inventory`)
+        if (p.eventType === 'DELETE') pushActivity(`🗑️ Vehicle removed`)
+      })
+      .subscribe()
+
+    return () => {
+      adminSupabase.removeChannel(leadsChannel)
+      adminSupabase.removeChannel(aptsChannel)
+      adminSupabase.removeChannel(carsChannel)
     }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   const fetchCounts = async () => {
@@ -48,25 +55,11 @@ const Dashboard = () => {
       adminSupabase.from('appointments').select('id', { count: 'exact', head: true }),
       adminSupabase.from('profiles').select('id', { count: 'exact', head: true }),
     ])
-    const results = { cars: 0, leads: 0, apts: 0, users: 0 }
-    
-    if (carsRes.error) console.error('Dashboard Error [cars]:', carsRes.error)
-    else results.cars = carsRes.count ?? 0
-
-    if (leadsRes.error) console.error('Dashboard Error [leads]:', leadsRes.error)
-    else results.leads = leadsRes.count ?? 0
-
-    if (aptsRes.error) console.error('Dashboard Error [apts]:', aptsRes.error)
-    else results.apts = aptsRes.count ?? 0
-
-    if (usersRes.error) console.error('Dashboard Error [users]:', usersRes.error)
-    else results.users = usersRes.count ?? 0
-
     setCounts({
-      cars: results.cars,
-      leads: results.leads,
-      appointments: results.apts,
-      users: results.users,
+      cars: carsRes.count ?? 0,
+      leads: leadsRes.count ?? 0,
+      appointments: aptsRes.count ?? 0,
+      users: usersRes.count ?? 0,
     })
   }
 
@@ -81,181 +74,158 @@ const Dashboard = () => {
     setLiveActivity([...activityRef.current])
   }
 
-  useEffect(() => {
-    fetchCounts()
-    fetchRecentLeads()
-
-    /* ── Real-time subscriptions as Admin ── */
-    const leadsChannel = adminSupabase.channel('rt-leads-admin')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, (p) => {
-        fetchCounts()
-        fetchRecentLeads()
-        pushActivity(`🔔 New lead from ${p.new.name ?? 'visitor'}`)
-      })
-      .subscribe()
-
-    const aptsChannel = adminSupabase.channel('rt-appointments-admin')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (p) => {
-        fetchCounts()
-        if (p.eventType === 'INSERT') pushActivity(`📅 New appointment by ${p.new.name ?? 'user'}`)
-        if (p.eventType === 'UPDATE') pushActivity(`✅ Appointment status → ${p.new.status}`)
-      })
-      .subscribe()
-
-    const carsChannel = adminSupabase.channel('rt-cars-admin')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'cars' }, (p) => {
-        fetchCounts()
-        if (p.eventType === 'INSERT') pushActivity(`🚗 New vehicle added to inventory`)
-        if (p.eventType === 'DELETE') pushActivity(`🗑️ Vehicle removed from inventory`)
-      })
-      .subscribe()
-
-    const chatsChannel = adminSupabase.channel('rt-chats-admin')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, () => {
-        fetchCounts()
-        pushActivity(`💬 New live chat started`)
-      })
-      .subscribe()
-
-    return () => {
-      adminSupabase.removeChannel(leadsChannel)
-      adminSupabase.removeChannel(aptsChannel)
-      adminSupabase.removeChannel(carsChannel)
-      adminSupabase.removeChannel(chatsChannel)
-    }
-  }, [])
-
   const stats = [
-    { label: 'Total Inventory', value: counts.cars, icon: <Car size={20} />, color: '#ef4444' },
-    { label: 'Total Users', value: counts.users, icon: <Users size={20} />, color: '#3b82f6' },
-    { label: 'Active Leads', value: counts.leads, icon: <Mail size={20} />, color: '#8b5cf6' },
-    { label: 'Appointments', value: counts.appointments, icon: <Calendar size={20} />, color: '#10b981' },
+    { label: 'Total Inventory', value: counts.cars, icon: <Car size={20} />, color: 'primary' },
+    { label: 'Total Users', value: counts.users, icon: <Users size={20} />, color: 'blue' },
+    { label: 'Active Leads', value: counts.leads, icon: <Mail size={20} />, color: 'purple' },
+    { label: 'Appointments', value: counts.appointments, icon: <Calendar size={20} />, color: 'green' },
   ]
 
   return (
-    <div>
+    <div className="max-w-full overflow-x-hidden">
       {/* Header */}
-      <div style={{ 
-        marginBottom: '2.5rem', 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row', 
-        alignItems: isMobile ? 'flex-start' : 'center', 
-        justifyContent: 'space-between',
-        gap: '1rem'
-      }}>
-        <div>
-          <h1 style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '0.375rem' }}>
-            Welcome back, <span style={{ color: '#ef4444' }}>Admin</span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mb-1 truncate">
+            Welcome back, <span className="text-primary">Admin</span>
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Here's what's happening at AttkissonAutos right now.</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium truncate">Here's what's happening at AttkissonAutos right now.</p>
         </div>
-        {/* Sync Button */}
-        <button 
-          onClick={async () => {
-            const { data: { users } } = await adminSupabase.auth.admin.listUsers()
-            if (users) {
-              for (const u of users) {
-                await adminSupabase.from('profiles').upsert({
-                  id: u.id,
-                  email: u.email,
-                  full_name: u.user_metadata?.full_name || 'Legacy User'
-                })
+        
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          <button 
+            onClick={async () => {
+              const { data: { users } } = await adminSupabase.auth.admin.listUsers()
+              if (users) {
+                for (const u of users) {
+                  await adminSupabase.from('profiles').upsert({
+                    id: u.id,
+                    email: u.email,
+                    full_name: u.user_metadata?.full_name || 'User'
+                  })
+                }
+                alert('Success')
+                fetchCounts()
               }
-              alert('Profiles synchronized successfully!')
-              fetchCounts()
-            }
-          }}
-          style={{ ...badge('green'), cursor: 'pointer', marginLeft: 'auto' }}
-        >
-          Sync Users
-        </button>
-        {/* Live indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.4rem 1rem' }}>
-          <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ width: 7, height: 7, borderRadius: '50%', background: '#16a34a' }} />
-          <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Live</span>
+            }}
+            className="px-4 py-2 bg-green-500/10 border border-green-500/20 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-green-500/20 transition-colors"
+          >
+            Sync Users
+          </button>
+          
+          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-2">
+            <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live</span>
+          </div>
         </div>
       </div>
 
-      {/* Stat Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? (window.innerWidth < 640 ? '1fr' : '1fr 1fr') : 'repeat(4, 1fr)', 
-        gap: '1.25rem', 
-        marginBottom: '2rem' 
-      }}>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         {stats.map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} style={card}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '0.75rem', background: `${s.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color }}>
+          <motion.div 
+            key={s.label} 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: i * 0.1 }}
+            className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative group overflow-hidden"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                s.color === 'primary' ? 'bg-primary/10 text-primary' : 
+                s.color === 'blue' ? 'bg-blue-500/10 text-blue-500' :
+                s.color === 'purple' ? 'bg-purple-500/10 text-purple-500' :
+                'bg-green-500/10 text-green-500'
+              }`}>
                 {s.icon}
               </div>
-              <ArrowUpRight size={14} color="#16a34a" />
+              <ArrowUpRight size={16} className="text-slate-300 group-hover:text-green-500 transition-colors" />
             </div>
-            <p style={{ fontSize: '0.6rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '0.4rem' }}>{s.label}</p>
-            <p style={{ fontSize: isMobile ? '1.5rem' : '2rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em' }}>{s.value}</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{s.label}</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter">{s.value}</p>
           </motion.div>
         ))}
       </div>
 
-      {/* Bottom Row */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', 
-        gap: '1.5rem' 
-      }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_0.8fr] gap-8">
         {/* Recent Leads */}
-        <div style={{ ...card, padding: isMobile ? '1.25rem' : '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b' }}>Recent Leads</h2>
-            <span style={{ ...badge('red'), cursor: 'pointer' }}>Live</span>
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm min-w-0">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Recent Leads</h2>
+            <div className="px-2 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-md">NEW</div>
           </div>
-          {recentLeads.length === 0 ? (
-            <p style={{ color: '#94a3b8', fontSize: '0.875rem', textAlign: 'center', padding: '2rem 0' }}>No leads yet.</p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-              {recentLeads.map((lead, i) => (
-                <div key={lead.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.875rem 0', borderBottom: i < recentLeads.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.875rem', color: '#0a0a0b', flexShrink: 0 }}>
+          
+          <div className="space-y-1">
+            {recentLeads.length === 0 ? (
+              <div className="py-12 text-center text-slate-400 text-sm italic">No leads found.</div>
+            ) : (
+              recentLeads.map((lead, i) => (
+                <div key={lead.id} className="flex items-center gap-4 py-3 border-b border-slate-50 last:border-0 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center font-black text-slate-400 text-sm flex-shrink-0">
                     {lead.name?.[0]?.toUpperCase() ?? '?'}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0a0a0b', marginBottom: '0.125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{lead.name}</p>
-                    <p style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.25rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      <Mail size={10} /> {lead.email}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-slate-900 truncate">{lead.name}</p>
+                    <p className="text-xs text-slate-400 truncate flex items-center gap-1">
+                      <Mail size={12} /> {lead.email}
                     </p>
                   </div>
-                  {!isMobile && <span style={badge(lead.status === 'responded' ? 'green' : 'red')}>{lead.status ?? 'new'}</span>}
+                  <div className="hidden sm:block">
+                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+                      lead.status === 'responded' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'
+                    }`}>
+                      {lead.status ?? 'New'}
+                    </span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </div>
         </div>
 
-        {/* Live Activity Feed */}
-        <div style={{ ...card, padding: isMobile ? '1.25rem' : '1.5rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <Zap size={16} color="#ef4444" />
-            <h2 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b' }}>Live Activity</h2>
+        {/* Live Activity */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm min-w-0">
+          <div className="flex items-center gap-2 mb-6">
+            <Zap size={18} className="text-primary" />
+            <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Live Activity</h2>
           </div>
-          {liveActivity.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem 0', color: '#94a3b8', fontSize: '0.8rem' }}>
-              Watching for new events…<br />
-              <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'center', gap: '0.25rem' }}>
-                {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#cbd5e1' }} />)}
-              </motion.div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {liveActivity.map((ev, i) => (
-                <motion.div key={ev.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.75rem' }}>
-                  <p style={{ fontSize: '0.8rem', color: '#334155', flex: 1 }}>{ev.msg}</p>
-                  <span style={{ fontSize: '0.65rem', color: '#94a3b8', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <Clock size={10} />{ev.time}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          )}
+          
+          <div className="space-y-4">
+            {liveActivity.length === 0 ? (
+              <div className="py-12 text-center space-y-3">
+                <div className="text-slate-400 text-sm italic">Watching events...</div>
+                <div className="flex justify-center gap-1.5">
+                  {[0,1,2].map(i => (
+                    <motion.div 
+                      key={i} 
+                      animate={{ opacity: [0.3, 1, 0.3] }} 
+                      transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                      className="w-1.5 h-1.5 rounded-full bg-slate-200"
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <AnimatePresence initial={false}>
+                {liveActivity.map((ev) => (
+                  <motion.div 
+                    key={ev.id} 
+                    initial={{ opacity: 0, x: -10 }} 
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex items-start justify-between gap-4 group"
+                  >
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary/30 mt-1.5 group-hover:bg-primary transition-colors flex-shrink-0" />
+                      <p className="text-[13px] font-medium text-slate-600 leading-relaxed">{ev.msg}</p>
+                    </div>
+                    <span className="text-[10px] text-slate-300 font-bold whitespace-nowrap pt-1 uppercase italic tracking-wider flex items-center gap-1">
+                      <Clock size={10} /> {ev.time}
+                    </span>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            )}
+          </div>
         </div>
       </div>
     </div>

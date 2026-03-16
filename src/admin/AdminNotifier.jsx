@@ -111,24 +111,15 @@ const AdminNotifier = () => {
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: '1.5rem', right: '1.5rem', zIndex: 9999 }}>
+    <div className="group">
       <audio ref={audioRef} src="/notification.mp3" preload="auto" />
       <button 
         onClick={() => setMuted(!muted)}
-        style={{ 
-          padding: '0.5rem', 
-          background: muted ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)', 
-          border: `1px solid ${muted ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.2)'}`,
-          borderRadius: '0.75rem',
-          color: muted ? '#ef4444' : '#16a34a',
-          fontSize: '0.6rem',
-          fontWeight: 800,
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          backdropFilter: 'blur(8px)'
-        }}
+        className={`px-3 py-2 rounded-xl border backdrop-blur-md text-[10px] font-black uppercase tracking-widest shadow-lg transition-all active:scale-95 ${
+          muted ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-green-500/10 border-green-500/20 text-green-500'
+        }`}
       >
-        {muted ? '🔇 Sound Off' : '🔊 Sound On'}
+        {muted ? '🔇 Muted' : '🔊 Live'}
       </button>
     </div>
   )

@@ -33,21 +33,9 @@ const BrandExperience = () => {
   }, []);
 
   return (
-    <section style={{
-      padding: isMobile ? '6rem 0' : '10rem 0',
-      background: '#fff',
-      position: 'relative',
-      zIndex: 1
-    }}>
+    <section className="py-24 lg:py-40 bg-white relative z-[1]">
       <div className="container">
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr', 
-          gap: isMobile ? '2.5rem' : '8rem', 
-          marginBottom: isMobile ? '4rem' : '8rem', 
-          alignItems: 'center',
-          textAlign: isMobile ? 'center' : 'left'
-        }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-32 mb-16 lg:mb-32 items-center text-center lg:text-left">
           <div>
             <motion.span
               initial={{ opacity: 0, x: -20 }}
@@ -100,11 +88,7 @@ const BrandExperience = () => {
           </div>
         </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
-          gap: '2.5rem' 
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {blocks.map((block, i) => (
             <motion.div
               key={i}

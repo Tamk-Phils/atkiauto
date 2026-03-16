@@ -22,29 +22,13 @@ const NewsletterCTA = () => {
   };
 
   return (
-    <section style={{
-      padding: '8rem 0',
-      background: '#fff',
-      position: 'relative'
-    }}>
+    <section className="py-24 lg:py-32 bg-white relative">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          style={{
-            background: '#0a0a0b',
-            padding: isMobile ? '4rem 2rem' : '6rem 4rem',
-            borderRadius: isMobile ? '2.5rem' : '4rem',
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr',
-            gap: isMobile ? '3rem' : '6rem',
-            alignItems: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.2)',
-            textAlign: isMobile ? 'center' : 'left'
-          }}
+          className="bg-[#0a0a0b] p-10 lg:p-24 rounded-[2.5rem] lg:rounded-[4rem] grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-24 items-center text-center lg:text-left relative overflow-hidden shadow-2xl shadow-black/20"
         >
           {/* Decorative Red Glow */}
           <div style={{
@@ -58,81 +42,31 @@ const NewsletterCTA = () => {
           }} />
 
           <div>
-            <span style={{
-              display: 'block',
-              color: '#ef4444',
-              fontWeight: 900,
-              textTransform: 'uppercase',
-              letterSpacing: '0.4em',
-              fontSize: '0.9rem',
-              marginBottom: '1.5rem'
-            }}>
+            <span className="block text-primary font-black uppercase tracking-[0.4em] text-[10px] lg:text-xs mb-4">
               Limited Access
             </span>
-            <h2 style={{
-              fontSize: 'clamp(2.5rem, 4vw, 4rem)',
-              fontWeight: 950,
-              color: '#fff',
-              lineHeight: 1.1,
-              letterSpacing: '-0.04em',
-              marginBottom: '2rem'
-            }}>
-              Join the <span style={{ color: '#ef4444' }}>Inner Circle.</span>
+            <h2 className="text-3xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-8">
+              Join the <span className="text-primary">Inner Circle.</span>
             </h2>
-            <p style={{
-              fontSize: isMobile ? '1.1rem' : '1.2rem',
-              color: '#94a3b8',
-              lineHeight: 1.6,
-              maxWidth: isMobile ? '100%' : '500px'
-            }}>
+            <p className="text-slate-400 text-lg lg:text-xl leading-relaxed max-w-[500px] lg:mx-0 mx-auto">
               Get exclusive early access to our rarest inventory and new inventory launches before they reach the public market.
             </p>
           </div>
 
-          <div>
+          <div className="w-full">
             {!submitted ? (
-              <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
+              <form onSubmit={handleSubmit} className="relative group">
                 <input
                   type="email"
                   placeholder="Enter your email address"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '1.5rem',
-                    padding: '1.5rem 6.5rem 1.5rem 2.5rem',
-                    color: '#fff',
-                    fontSize: '1.1rem',
-                    fontWeight: 500,
-                    outline: 'none',
-                    transition: 'border-color 0.3s'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#ef4444'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-8 pr-20 text-white text-lg font-medium outline-none transition-all focus:border-primary focus:bg-white/10"
                 />
                 <button
                   type="submit"
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '10px',
-                    bottom: '10px',
-                    background: '#ef4444',
-                    border: 'none',
-                    borderRadius: '1.25rem',
-                    width: '60px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  className="absolute right-2 top-2 bottom-2 bg-primary hover:bg-red-600 transition-all text-white px-6 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-[1.05] active:scale-95"
                 >
                   <Send size={24} />
                 </button>

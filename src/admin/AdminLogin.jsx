@@ -39,113 +39,82 @@ const AdminLogin = () => {
   const iconStyle = { position: 'absolute', left: '1rem', color: '#94a3b8', pointerEvents: 'none', zIndex: 1 }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'radial-gradient(ellipse 80% 60% at 40% 30%, #161620 0%, #0a0a0b 100%)',
-      padding: '1.5rem',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background blob */}
-      <div style={{ position: 'absolute', top: '-15%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(239,68,68,0.07) 0%, transparent 65%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '-15%', right: '-10%', width: '40%', height: '40%', background: 'radial-gradient(circle, rgba(239,68,68,0.04) 0%, transparent 65%)', pointerEvents: 'none' }} />
+    <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_80%_60%_at_40%_30%,#161620_0%,#0a0a0b_100%)] p-6 relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,rgba(239,68,68,0.07)_0%,transparent_65%)] pointer-events-none" />
+      <div className="absolute bottom-[-15%] right-[-10%] w-[40%] h-[40%] bg-[radial-gradient(circle,rgba(239,68,68,0.04)_0%,transparent_65%)] pointer-events-none" />
 
       {/* Background grid */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-        backgroundSize: '50px 50px',
-        maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, black 30%, transparent 100%)',
-      }} />
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,black_30%,transparent_100%)]" />
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 10 }}
+        className="w-full max-w-[420px] relative z-10"
       >
         {/* Logo Block */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className="text-center mb-10">
           <motion.div
             initial={{ scale: 0.5, rotate: -10 }}
             animate={{ scale: 1, rotate: 3 }}
             transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.2 }}
-            style={{
-              width: 64, height: 64,
-              background: '#ef4444',
-              borderRadius: '1.125rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 1.25rem',
-              boxShadow: '0 12px 40px rgba(239,68,68,0.35)',
-            }}
+            className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-[0_12px_40px_rgba(239,68,68,0.35)]"
           >
-            <Shield size={30} color="#fff" />
+            <Shield size={30} className="text-white" />
           </motion.div>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', marginBottom: '0.375rem' }}>
-            Admin <span style={{ color: '#ef4444' }}>Portal</span>
+          <h1 className="text-3xl font-black text-white tracking-tight mb-2">
+            Admin <span className="text-primary">Portal</span>
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem' }}>
-            Secure access — AttkissonAutos Staff Only
+          <p className="text-white/40 text-[13px] font-medium uppercase tracking-widest">
+            Secure access — Staff Only
           </p>
         </div>
 
         {/* Card */}
-        <div style={{
-          background: 'rgba(255,255,255,0.97)',
-          borderRadius: '1.25rem',
-          padding: window.innerWidth < 640 ? '1.5rem' : '2.25rem',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}>
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="bg-white rounded-3xl p-8 lg:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.4)] border border-white/10">
+          <form onSubmit={handleLogin} className="flex flex-col gap-6">
             {/* Error Banner */}
             {error && (
               <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.875rem 1rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.75rem', color: '#dc2626', fontSize: '0.8rem', fontWeight: 600 }}>
-                <AlertCircle size={16} />
+                className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-bold">
+                <AlertCircle size={18} />
                 {error}
               </motion.div>
             )}
 
             {/* Email */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
                 Email Address
               </label>
-              <div style={inputWrap}>
-                <Mail size={16} style={iconStyle} />
+              <div className="relative flex items-center group">
+                <Mail size={18} className="absolute left-4 text-slate-300 group-focus-within:text-primary transition-colors" />
                 <input
                   type="email" required
                   value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="admin@attkissonautos.com"
-                  style={inputStyle}
-                  onFocus={e => { e.target.style.borderColor = '#ef4444'; e.target.style.background = '#fff' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.background = '#f8fafc' }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white"
                 />
               </div>
             </div>
 
             {/* Password */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">
                 Password
               </label>
-              <div style={inputWrap}>
-                <Lock size={16} style={iconStyle} />
+              <div className="relative flex items-center group">
+                <Lock size={18} className="absolute left-4 text-slate-300 group-focus-within:text-primary transition-colors" />
                 <input
                   type={showPassword ? 'text' : 'password'} required
                   value={password} onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{ ...inputStyle, paddingRight: '3rem' }}
-                  onFocus={e => { e.target.style.borderColor = '#ef4444'; e.target.style.background = '#fff' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.background = '#f8fafc' }}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 pl-12 pr-12 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white"
                 />
                 <button type="button" onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: '1rem', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  className="absolute right-4 text-slate-300 hover:text-slate-500 transition-colors">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
@@ -154,37 +123,23 @@ const AdminLogin = () => {
             <motion.button
               type="submit" disabled={loading}
               whileTap={{ scale: 0.98 }}
-              style={{
-                width: '100%', padding: '1rem',
-                background: loading ? '#f87171' : '#ef4444',
-                color: '#fff', border: 'none', borderRadius: '0.75rem',
-                fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.08em',
-                textTransform: 'uppercase', cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                boxShadow: '0 8px 24px rgba(239,68,68,0.3)',
-                transition: 'background 0.2s',
-                marginTop: '0.25rem',
-              }}
+              className="w-full bg-primary text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-[0_12px_32px_rgba(239,68,68,0.3)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
             >
               {loading ? (
-                <>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                    style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
-                  Authenticating…
-                </>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                <>Secure Login <ArrowRight size={16} /></>
+                <>Secure Login <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></>
               )}
             </motion.button>
           </form>
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: '1.75rem' }}>
-          <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.7rem', marginBottom: '0.75rem' }}>
+        <div className="text-center mt-10">
+          <p className="text-white/20 text-[10px] font-bold uppercase tracking-widest mb-4">
             Protected by Supabase Auth
           </p>
-          <Link to="/" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', textDecoration: 'none' }}>
+          <Link to="/" className="text-white/40 hover:text-white transition-all text-xs font-black uppercase tracking-widest">
             ← Back to Site
           </Link>
         </div>
