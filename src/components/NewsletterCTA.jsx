@@ -85,7 +85,7 @@ const NewsletterCTA = () => {
               lineHeight: 1.6,
               maxWidth: isMobile ? '100%' : '500px'
             }}>
-              Get exclusive early access to our rarest inventory and bespoke collection launches before they reach the public market.
+              Get exclusive early access to our rarest inventory and new inventory launches before they reach the public market.
             </p>
           </div>
 

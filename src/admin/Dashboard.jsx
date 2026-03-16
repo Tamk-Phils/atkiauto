@@ -6,6 +6,7 @@ import {
   Mail, CheckCircle2, Clock, Zap
 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { adminSupabase } from '../lib/adminSupabase'
 
 /* ── Shared admin style tokens ── */
 const card = {
@@ -24,7 +25,7 @@ const badge = (color) => ({
 })
 
 const Dashboard = () => {
-  const [counts, setCounts] = useState({ cars: 0, leads: 0, appointments: 0 })
+  const [counts, setCounts] = useState({ cars: 0, leads: 0, appointments: 0, users: 0 })
   const [recentLeads, setRecentLeads] = useState([])
   const [liveActivity, setLiveActivity] = useState([])
   const activityRef = useRef([])
@@ -41,20 +42,36 @@ const Dashboard = () => {
   }, [])
 
   const fetchCounts = async () => {
-    const [carsRes, leadsRes, aptsRes] = await Promise.all([
-      supabase.from('cars').select('id', { count: 'exact', head: true }),
-      supabase.from('leads').select('id', { count: 'exact', head: true }),
-      supabase.from('appointments').select('id', { count: 'exact', head: true }),
+    const [carsRes, leadsRes, aptsRes, usersRes] = await Promise.all([
+      adminSupabase.from('cars').select('id', { count: 'exact', head: true }),
+      adminSupabase.from('leads').select('id', { count: 'exact', head: true }),
+      adminSupabase.from('appointments').select('id', { count: 'exact', head: true }),
+      adminSupabase.from('profiles').select('id', { count: 'exact', head: true }),
     ])
+    const results = { cars: 0, leads: 0, apts: 0, users: 0 }
+    
+    if (carsRes.error) console.error('Dashboard Error [cars]:', carsRes.error)
+    else results.cars = carsRes.count ?? 0
+
+    if (leadsRes.error) console.error('Dashboard Error [leads]:', leadsRes.error)
+    else results.leads = leadsRes.count ?? 0
+
+    if (aptsRes.error) console.error('Dashboard Error [apts]:', aptsRes.error)
+    else results.apts = aptsRes.count ?? 0
+
+    if (usersRes.error) console.error('Dashboard Error [users]:', usersRes.error)
+    else results.users = usersRes.count ?? 0
+
     setCounts({
-      cars: carsRes.count ?? 0,
-      leads: leadsRes.count ?? 0,
-      appointments: aptsRes.count ?? 0,
+      cars: results.cars,
+      leads: results.leads,
+      appointments: results.apts,
+      users: results.users,
     })
   }
 
   const fetchRecentLeads = async () => {
-    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false }).limit(5)
+    const { data } = await adminSupabase.from('leads').select('*').order('created_at', { ascending: false }).limit(5)
     if (data) setRecentLeads(data)
   }
 
@@ -68,8 +85,8 @@ const Dashboard = () => {
     fetchCounts()
     fetchRecentLeads()
 
-    /* ── Real-time subscriptions ── */
-    const leadsChannel = supabase.channel('rt-leads')
+    /* ── Real-time subscriptions as Admin ── */
+    const leadsChannel = adminSupabase.channel('rt-leads-admin')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, (p) => {
         fetchCounts()
         fetchRecentLeads()
@@ -77,7 +94,7 @@ const Dashboard = () => {
       })
       .subscribe()
 
-    const aptsChannel = supabase.channel('rt-appointments')
+    const aptsChannel = adminSupabase.channel('rt-appointments-admin')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, (p) => {
         fetchCounts()
         if (p.eventType === 'INSERT') pushActivity(`📅 New appointment by ${p.new.name ?? 'user'}`)
@@ -85,7 +102,7 @@ const Dashboard = () => {
       })
       .subscribe()
 
-    const carsChannel = supabase.channel('rt-cars')
+    const carsChannel = adminSupabase.channel('rt-cars-admin')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cars' }, (p) => {
         fetchCounts()
         if (p.eventType === 'INSERT') pushActivity(`🚗 New vehicle added to inventory`)
@@ -93,25 +110,26 @@ const Dashboard = () => {
       })
       .subscribe()
 
-    const chatsChannel = supabase.channel('rt-chats')
+    const chatsChannel = adminSupabase.channel('rt-chats-admin')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, () => {
+        fetchCounts()
         pushActivity(`💬 New live chat started`)
       })
       .subscribe()
 
     return () => {
-      supabase.removeChannel(leadsChannel)
-      supabase.removeChannel(aptsChannel)
-      supabase.removeChannel(carsChannel)
-      supabase.removeChannel(chatsChannel)
+      adminSupabase.removeChannel(leadsChannel)
+      adminSupabase.removeChannel(aptsChannel)
+      adminSupabase.removeChannel(carsChannel)
+      adminSupabase.removeChannel(chatsChannel)
     }
   }, [])
 
   const stats = [
     { label: 'Total Inventory', value: counts.cars, icon: <Car size={20} />, color: '#ef4444' },
-    { label: 'Active Leads', value: counts.leads, icon: <Users size={20} />, color: '#3b82f6' },
-    { label: 'Appointments', value: counts.appointments, icon: <Calendar size={20} />, color: '#8b5cf6' },
-    { label: 'Est. Revenue', value: `$${(counts.cars * 85000).toLocaleString()}`, icon: <DollarSign size={20} />, color: '#10b981' },
+    { label: 'Total Users', value: counts.users, icon: <Users size={20} />, color: '#3b82f6' },
+    { label: 'Active Leads', value: counts.leads, icon: <Mail size={20} />, color: '#8b5cf6' },
+    { label: 'Appointments', value: counts.appointments, icon: <Calendar size={20} />, color: '#10b981' },
   ]
 
   return (
@@ -131,6 +149,26 @@ const Dashboard = () => {
           </h1>
           <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Here's what's happening at AttkissonAutos right now.</p>
         </div>
+        {/* Sync Button */}
+        <button 
+          onClick={async () => {
+            const { data: { users } } = await adminSupabase.auth.admin.listUsers()
+            if (users) {
+              for (const u of users) {
+                await adminSupabase.from('profiles').upsert({
+                  id: u.id,
+                  email: u.email,
+                  full_name: u.user_metadata?.full_name || 'Legacy User'
+                })
+              }
+              alert('Profiles synchronized successfully!')
+              fetchCounts()
+            }
+          }}
+          style={{ ...badge('green'), cursor: 'pointer', marginLeft: 'auto' }}
+        >
+          Sync Users
+        </button>
         {/* Live indicator */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: '999px', padding: '0.4rem 1rem' }}>
           <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 1.5, repeat: Infinity }} style={{ width: 7, height: 7, borderRadius: '50%', background: '#16a34a' }} />

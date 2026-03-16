@@ -14,7 +14,10 @@ import AppointmentManager from './admin/AppointmentManager'
 import Settings from './admin/Settings'
 import ChatManager from './admin/ChatManager'
 import AdminLogin from './admin/AdminLogin'
+import UserManager from './admin/UserManager'
 import ProtectedRoute from './admin/ProtectedRoute'
+import Auth from './pages/Auth'
+import UserDashboard from './pages/UserDashboard'
 import Navbar from './components/Navbar'
 import Chat from './components/Chat'
 
@@ -31,6 +34,8 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/service" element={<Service />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -47,6 +52,7 @@ function App() {
               <Route path="leads" element={<LeadManager />} />
               <Route path="appointments" element={<AppointmentManager />} />
               <Route path="chats" element={<ChatManager />} />
+              <Route path="users" element={<UserManager />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>

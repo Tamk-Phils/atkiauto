@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LayoutDashboard, Car, Users, Calendar, Settings, LogOut, Package, MessageSquare, X, Menu } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import AdminNotifier from './AdminNotifier'
 
 const AdminLayout = () => {
   const location = useLocation()
@@ -20,15 +21,15 @@ const AdminLayout = () => {
     if (isMobile) setShowSidebar(false)
   }, [location.pathname, isMobile])
   
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
+  const handleSignOut = () => {
+    localStorage.removeItem('admin_auth')
     navigate('/admin/login')
   }
 
   const menuItems = [
     { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/admin' },
     { icon: <Car size={20} />, label: 'Inventory', path: '/admin/inventory' },
-    { icon: <Users size={20} />, label: 'Leads', path: '/admin/leads' },
+    { icon: <Users size={20} />, label: 'Users', path: '/admin/users' },
     { icon: <MessageSquare size={20} />, label: 'Chats', path: '/admin/chats' },
     { icon: <Calendar size={20} />, label: 'Appointments', path: '/admin/appointments' },
     { icon: <Settings size={20} />, label: 'Settings', path: '/admin/settings' },
@@ -112,6 +113,7 @@ const AdminLayout = () => {
         flex-1 transition-all duration-300
         ${isMobile ? 'ml-0 p-6 pt-24' : 'ml-64 p-12'}
       `}>
+        <AdminNotifier />
         <Outlet />
       </main>
     </div>

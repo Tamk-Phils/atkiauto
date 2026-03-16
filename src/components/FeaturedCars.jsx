@@ -1,14 +1,10 @@
 import React, { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, ImageIcon } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
-const vehicles = [
-  { id: 1, name: 'Luminary S-Edition', type: 'Electric Sedan',     price: '$89,900',  image: '/car_1.png', badge: 'Electric' },
-  { id: 2, name: 'Titan V8 Explorer',  type: 'Luxury SUV',         price: '$115,000', image: '/car_2.png', badge: 'Petrol' },
-  { id: 3, name: 'Apex RS Coupe',      type: 'Sports Coupe',       price: '$145,000', image: '/car_3.png', badge: 'Manual' },
-  { id: 4, name: 'Elysium Cabriolet',  type: 'Luxury Convertible', price: '$132,000', image: '/car_4.png', badge: 'Hybrid' },
-]
+// vehicles will be fetched from Supabase
 
 const Card3D = ({ car, i }) => {
   const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
@@ -69,16 +65,24 @@ const Card3D = ({ car, i }) => {
         border: '1px solid #e2e8f0',
         overflow: 'hidden',
         position: 'relative',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-      }}>
+        boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+        transition: 'transform 0.3s, box-shadow 0.3s'
+      }}
+      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; }}
+      >
         {/* Image */}
         <div style={{ position: 'relative', height: 200, overflow: 'hidden', background: '#f8fafc' }}>
-          <motion.img
-            src={car.image} alt={car.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 0.5 }}
-          />
+          {(car.images?.length > 0 || car.image_url) ? (
+            <motion.img
+              src={car.images?.[0] || car.image_url} alt={`${car.make} ${car.model}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              whileHover={{ scale: 1.08 }}
+              transition={{ duration: 0.5 }}
+            />
+          ) : (
+             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}><ImageIcon size={32} color="#cbd5e1" /></div>
+          )}
           {/* Shine sweep on hover */}
           <motion.div
             initial={{ x: '-100%' }}
@@ -97,15 +101,15 @@ const Card3D = ({ car, i }) => {
             padding: '0.3rem 0.75rem', borderRadius: '999px',
             fontSize: '0.6rem', fontWeight: 800, color: '#fff',
             textTransform: 'uppercase', letterSpacing: '0.1em',
-          }}>{car.badge}</div>
+          }}>{car.year} Model</div>
         </div>
 
         {/* Info – at a deeper Z layer to emphasize 3D */}
         <div style={{ padding: '1.5rem', transform: 'translateZ(20px)' }}>
           <p style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.3rem' }}>{car.type}</p>
-          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b', letterSpacing: '-0.01em', marginBottom: '0.75rem' }}>{car.name}</h3>
+          <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b', letterSpacing: '-0.01em', marginBottom: '0.75rem' }}>{car.make} {car.model}</h3>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.875rem', borderTop: '1px solid #f1f5f9' }}>
-            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em' }}>{car.price}</span>
+            <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em' }}>${parseInt(car.price || 0).toLocaleString()}</span>
             <Link to={`/inventory/${car.id}`} style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
               fontSize: '0.65rem', fontWeight: 800, color: '#ef4444',
@@ -122,8 +126,23 @@ const Card3D = ({ car, i }) => {
 
 const FeaturedCars = () => {
   const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+  const [vehicles, setVehicles] = React.useState([])
+  const [loading, setLoading] = React.useState(true)
 
   React.useEffect(() => {
+    const fetchVehicles = async () => {
+      const { data } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('status', 'available')
+        .limit(4)
+      
+      if (data) setVehicles(data)
+      setLoading(false)
+    }
+
+    fetchVehicles()
+
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -182,13 +201,28 @@ const FeaturedCars = () => {
         {/* 3D Cards Grid */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))', 
-          gap: isMobile ? '1.5rem' : '1.75rem', 
-          perspective: '1200px' 
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
+          gap: isMobile ? '1.5rem' : '1.5rem', 
+          perspective: '1200px',
+          minHeight: '400px'
         }}>
-          {vehicles.map((car, i) => (
-            <Card3D key={car.id} car={car} i={i} />
-          ))}
+          {loading ? (
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>Loading collection...</div>
+          ) : vehicles.length === 0 ? (
+            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>Check back soon for new inventory!</div>
+          ) : (
+            vehicles.map((car, i) => (
+              <motion.div
+                key={car.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card3D car={car} i={i} />
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
     </section>

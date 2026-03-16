@@ -89,24 +89,24 @@ const Hero = () => {
             >
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
               <span style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-                Premium Dealership · Est. 1996
+                Reliable Quality · Est. 1996
               </span>
             </motion.div>
-
+ 
             {/* Headline */}
             <h1 style={{
               fontSize: 'clamp(2.5rem, 6vw, 5.5rem)',
               fontWeight: 900, color: '#fff', lineHeight: 1.0,
               letterSpacing: '-0.035em', marginBottom: '1.5rem'
             }}>
-              Beyond <br />
+              Driven by <br />
               <span style={{
                 color: '#ef4444'
               }}>
-                Excellence
+                Reliability
               </span>
             </h1>
-
+ 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -121,7 +121,7 @@ const Hero = () => {
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)'
               }}
             >
-              The world's most curated automotive collection. Engineered for those who demand perfection in every mile.
+              Hand-picked, certified pre-owned vehicles. Quality transportation for those who value trust and longevity.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -206,13 +206,14 @@ const Hero = () => {
             style={{ width: '100%', position: 'relative' }}
           >
             <img
-              src="/hero_car_luxury.png"
-              alt="Luxury Vehicle"
+              src="/hero_used_cars.png"
+              alt="Quality Pre-owned Vehicles"
               style={{
                 width: '120%',
                 maxWidth: isMobile ? 'none' : '700px',
                 margin: isMobile ? '0 auto' : '0',
                 display: 'block',
+                borderRadius: isMobile ? '0' : '1.5rem',
                 filter: isMobile ? 'drop-shadow(0 20px 40px rgba(0,0,0,0.8)) brightness(0.8)' : 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))'
               }}
             />
@@ -231,26 +232,26 @@ const Hero = () => {
             {!isMobile && (
               <>
                 <div style={{
-                  position: 'absolute', top: '15%', right: '0%',
+                  position: 'absolute', top: '15%', right: '5%',
                   background: 'rgba(255,255,255,0.02)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '1rem', padding: '0.75rem 1rem',
                   zIndex: 3
                 }}>
-                   <div style={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Top Speed</div>
-                   <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 900 }}>320 <span style={{ color: '#ef4444' }}>km/h</span></div>
+                   <div style={{ fontSize: '0.55rem', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Selection</div>
+                   <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 900 }}>450+ <span style={{ color: '#ef4444' }}>Vehicles</span></div>
                 </div>
                 <div style={{
-                  position: 'absolute', bottom: '20%', left: '0%',
+                  position: 'absolute', bottom: '20%', left: '5%',
                   background: 'rgba(255,255,255,0.02)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '1rem', padding: '0.75rem 1rem',
                   zIndex: 3
                 }}>
-                   <div style={{ fontSize: '0.55rem', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Acceleration</div>
-                   <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 900 }}>2.8 <span style={{ color: '#ef4444' }}>sec</span></div>
+                   <div style={{ fontSize: '0.55rem', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.2rem' }}>Warranty</div>
+                   <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 900 }}>12 <span style={{ color: '#ef4444' }}>Months</span></div>
                 </div>
               </>
             )}

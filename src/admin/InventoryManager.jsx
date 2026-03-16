@@ -10,7 +10,7 @@ const td = { padding: '1rem 1.25rem', borderTop: '1px solid #f1f5f9', fontSize: 
 const inputStyle = { width: '100%', padding: '0.75rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '0.5rem', fontSize: '0.875rem', fontFamily: 'inherit', background: '#fff', color: '#0f172a', outline: 'none' }
 const labelStyle = { fontSize: '0.6rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.14em', display: 'block', marginBottom: '0.4rem' }
 
-const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available' }
+const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available', reservation_fee: '' }
 
 /* ─── Image Uploader Component ───────────────────────── */
 const ImageUploader = ({ existingImages = [], onImagesChange }) => {
@@ -182,7 +182,7 @@ const InventoryManager = () => {
   }
 
   const openEdit = (car) => {
-    setForm({ make: car.make, model: car.model, year: car.year, type: car.type || '', price: car.price, fuel: car.fuel || '', mileage: car.mileage || '', transmission: car.transmission || 'Automatic', status: car.status || 'available' })
+    setForm({ make: car.make, model: car.model, year: car.year, type: car.type || '', price: car.price, fuel: car.fuel || '', mileage: car.mileage || '', transmission: car.transmission || 'Automatic', status: car.status || 'available', reservation_fee: car.reservation_fee || '' })
     setFormImages(car.images || (car.image_url ? [car.image_url] : []))
     setEditId(car.id)
     setShowForm(true)
@@ -195,6 +195,7 @@ const InventoryManager = () => {
       ...form,
       year: parseInt(form.year),
       price: parseFloat(form.price),
+      reservation_fee: parseFloat(form.reservation_fee || 0),
       images: formImages,
       image_url: formImages[0] || null,
     }
@@ -311,6 +312,7 @@ const InventoryManager = () => {
                   { key: 'model',  label: 'Model',        placeholder: 'Model S' },
                   { key: 'year',   label: 'Year',         placeholder: '2024', type: 'number' },
                   { key: 'price',  label: 'Price (USD)',  placeholder: '89900', type: 'number' },
+                  { key: 'reservation_fee', label: 'Reservation Fee (USD)', placeholder: '500', type: 'number' },
                   { key: 'type',   label: 'Vehicle Type', placeholder: 'Electric Sedan' },
                   { key: 'fuel',   label: 'Fuel Type',    placeholder: 'Electric' },
                   { key: 'mileage',label: 'Mileage',      placeholder: '1,200 mi' },
@@ -384,7 +386,7 @@ const InventoryManager = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
-                {['Vehicle', 'Photos', 'Status', 'Price', 'Specs', 'Actions'].map(h => <th key={h} style={th}>{h}</th>)}
+                {['Vehicle', 'Photos', 'Status', 'Price / Fee', 'Specs', 'Actions'].map(h => <th key={h} style={th}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -438,7 +440,10 @@ const InventoryManager = () => {
                             border: `1px solid ${car.status === 'available' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
                           }}>{car.status}</span>
                         </td>
-                        <td style={{ ...td, fontWeight: 800 }}>${parseInt(car.price || 0).toLocaleString()}</td>
+                        <td style={td}>
+                          <div style={{ fontWeight: 800 }}>${parseInt(car.price || 0).toLocaleString()}</div>
+                          <div style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.25rem' }}>Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</div>
+                        </td>
                         <td style={td}>
                           <div style={{ fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
                             <span><span style={{ color: '#94a3b8' }}>Fuel:</span> {car.fuel}</span>

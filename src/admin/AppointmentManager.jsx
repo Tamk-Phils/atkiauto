@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar as CalendarIcon, Clock, CheckCircle2, XCircle, Search, Bell } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { adminSupabase } from '../lib/adminSupabase'
 
 const th = { padding: '0.875rem 1.25rem', fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#94a3b8', textAlign: 'left' }
 const td = { padding: '1rem 1.25rem', borderTop: '1px solid #f1f5f9', fontSize: '0.875rem', color: '#334155' }
@@ -56,7 +57,7 @@ const AppointmentManager = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
-    await supabase.from('appointments').update({ status }).eq('id', id)
+    await adminSupabase.from('appointments').update({ status }).eq('id', id)
   }
 
   const filtered = appointments.filter(a =>

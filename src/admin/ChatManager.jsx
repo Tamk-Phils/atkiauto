@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, MessageSquare, User, Send, CheckCircle2, Clock } from 'lucide-react'
+import { Search, MessageSquare, User, Send, CheckCircle2, Clock, ArrowLeft } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { adminSupabase } from '../lib/adminSupabase'
+import { useLocation } from 'react-router-dom'
 
 const ChatManager = () => {
   const [chats, setChats] = useState([])
@@ -9,6 +11,9 @@ const ChatManager = () => {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
+  const [profiles, setProfiles] = useState({}) // Cache for user profiles
+  const processedRedirection = useRef(false) // One-time flag
+  const location = useLocation()
   const scrollRef = useRef()
 
   useEffect(() => {
@@ -17,31 +22,97 @@ const ChatManager = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Initial fetch and global subscriptions
   useEffect(() => {
+    console.log('ChatManager MOUNTED')
     fetchChats()
 
-    const subscription = supabase
-      .channel('chat_list')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chats' }, () => fetchChats())
-      .subscribe()
+    // 1. Listen for ALL chat changes (new chats, status updates)
+    const chatSub = adminSupabase
+      .channel('admin_global_chats')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'chats' 
+      }, () => {
+        console.log('Chat list update detected via Realtime')
+        fetchChats()
+      })
+      .subscribe((status) => console.log('Chat list subscription status:', status))
 
-    return () => supabase.removeChannel(subscription)
+    // 2. Listen for ALL new messages (crucial for "user sent message" visibility)
+    const msgSub = adminSupabase
+      .channel('admin_global_messages_listener')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages' 
+      }, (payload) => {
+        console.log('GLOBAL MESSAGE RECEIVED:', payload)
+        // Refresh list to show latest message at top/sort by last_message_at
+        fetchChats()
+      })
+      .subscribe((status) => console.log('Global message listener status:', status))
+
+    return () => {
+      console.log('ChatManager UNMOUNTING - Cleaning up global subscriptions')
+      adminSupabase.removeChannel(chatSub)
+      adminSupabase.removeChannel(msgSub)
+    }
   }, [])
 
+  // Process redirection from location state ONCE
+  useEffect(() => {
+    const targetChatId = location.state?.openChatId
+    if (!targetChatId || processedRedirection.current) return
+
+    // Wait until initial fetch finishes
+    if (!loading) {
+      console.log('Attempting redirection to targetChatId:', targetChatId)
+      const found = chats.find(c => c.id === targetChatId)
+      
+      if (found) {
+        console.log('Found redirected chat in list')
+        setSelectedChat(found)
+        processedRedirection.current = true
+      } else {
+        console.log('Redirection target not in list, fetching specifically')
+        fetchSpecificChat(targetChatId)
+        processedRedirection.current = true
+      }
+    }
+  }, [loading, chats, location.state?.openChatId])
+
+  // Subscribe to messages for selected chat
   useEffect(() => {
     if (selectedChat) {
+      console.log('Switching message subscription to chat:', selectedChat.id)
+      setMessages([]) // Clear previous messages immediately
       fetchMessages(selectedChat.id)
       
-      const sub = supabase
-        .channel(`chat:${selectedChat.id}`)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `chat_id=eq.${selectedChat.id}` }, 
-        (payload) => setMessages(prev => [...prev, payload.new])
-      )
-      .subscribe()
+      const sub = adminSupabase
+        .channel(`admin_messages_for_${selectedChat.id}`)
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'messages',
+          filter: `chat_id=eq.${selectedChat.id}`
+        }, (payload) => {
+          console.log('NEW MESSAGE IN SELECTED CHAT:', payload)
+          setMessages(prev => {
+            if (prev.find(m => m.id === payload.new.id)) return prev
+            return [...prev, payload.new]
+          })
+          // List will already refresh due to global listener
+        })
+        .subscribe((status) => console.log(`Subscription for chat ${selectedChat.id}:`, status))
 
-      return () => supabase.removeChannel(sub)
+      return () => {
+        console.log(`Cleaning up message subscription for ${selectedChat.id}`)
+        adminSupabase.removeChannel(sub)
+      }
     }
-  }, [selectedChat])
+  }, [selectedChat?.id])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -49,14 +120,88 @@ const ChatManager = () => {
     }
   }, [messages])
 
+  const hasLastMessageAt = useRef(true) // Cache schema state
+
   const fetchChats = async () => {
-    const { data } = await supabase.from('chats').select('*').order('created_at', { ascending: false })
-    if (data) setChats(data)
+    setLoading(true)
+    
+    let rawChats = null
+    let error = null
+
+    // Only try last_message_at if we haven't confirmed it's missing
+    if (hasLastMessageAt.current) {
+      const result = await adminSupabase
+        .from('chats')
+        .select('*')
+        .order('last_message_at', { ascending: false })
+      
+      if (result.error && result.error.code === '42703') {
+        hasLastMessageAt.current = false
+        console.warn('last_message_at column missing, falling back to created_at permanently for this session')
+      } else {
+        rawChats = result.data
+        error = result.error
+      }
+    }
+    
+    // Fallback if column is confirmed missing or first attempt failed with missing column error
+    if (!hasLastMessageAt.current) {
+      const fallback = await adminSupabase
+        .from('chats')
+        .select('*')
+        .order('created_at', { ascending: false })
+      rawChats = fallback.data
+      error = fallback.error
+    }
+    
+    if (error) {
+      console.error('Error fetching chats:', error)
+    } else if (rawChats) {
+      setChats(rawChats)
+      const userIds = [...new Set(rawChats.map(c => c.user_id).filter(Boolean))]
+      if (userIds.length > 0) {
+        fetchProfiles(userIds)
+      }
+    }
     setLoading(false)
   }
 
+  const fetchProfiles = async (userIds) => {
+    const { data } = await adminSupabase
+      .from('profiles')
+      .select('id, full_name, email')
+      .in('id', userIds)
+    
+    if (data) {
+      const newProfiles = { ...profiles }
+      data.forEach(p => {
+        newProfiles[p.id] = p
+      })
+      setProfiles(newProfiles)
+    }
+  }
+
+  const fetchSpecificChat = async (chatId) => {
+    const { data } = await adminSupabase
+      .from('chats')
+      .select('*')
+      .eq('id', chatId)
+      .maybeSingle()
+    
+    if (data) {
+      setSelectedChat(data)
+      if (data.user_id && !profiles[data.user_id]) {
+        fetchProfiles([data.user_id])
+      }
+    }
+  }
+
   const fetchMessages = async (chatId) => {
-    const { data } = await supabase.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true })
+    const { data } = await adminSupabase
+      .from('messages')
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true })
     if (data) setMessages(data)
   }
 
@@ -64,14 +209,37 @@ const ChatManager = () => {
     e.preventDefault()
     if (!newMessage.trim() || !selectedChat) return
 
-    const message = {
+    const content = newMessage.trim()
+    setNewMessage('') // Clear immediately for UX
+
+    const messageObj = {
       chat_id: selectedChat.id,
       sender: 'admin',
-      content: newMessage
+      content
     }
 
-    const { error } = await supabase.from('messages').insert([message])
-    if (!error) setNewMessage('')
+    const { data: inserted, error } = await adminSupabase
+      .from('messages')
+      .insert([messageObj])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error sending message:', error)
+      setNewMessage(content) // Restore text on error
+      if (error.code === '400' || error.message?.includes('trigger')) {
+        alert('Database Error: The message trigger failed. Please run the SQL fix provided in the admin guide.')
+      } else {
+        alert(`Failed to send message: ${error.message || 'Unknown error'}`)
+      }
+    } else if (inserted) {
+      // Optimistically add to list if subscription hasn't caught it yet
+      setMessages(prev => {
+        if (prev.find(m => m.id === inserted.id)) return prev
+        return [...prev, inserted]
+      })
+      fetchChats() // update sorting
+    }
   }
 
   return (
@@ -112,18 +280,22 @@ const ChatManager = () => {
                   <User size={20} />
                 </div>
                 <div className="text-left overflow-hidden">
-                  <h4 className="font-bold text-sm truncate">Visitor_{chat.id.slice(0, 5)}</h4>
-                  <p className="text-[10px] text-text-muted uppercase tracking-tighter">{chat.status}</p>
+                  <h4 className="font-bold text-sm truncate">
+                    {profiles[chat.user_id]?.full_name || chat.profiles?.full_name || `Guest_${chat.id.slice(0, 5)}`}
+                  </h4>
+                  <p className="text-[10px] text-text-muted uppercase tracking-tighter">
+                    {profiles[chat.user_id]?.email || chat.profiles?.email || chat.status}
+                  </p>
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Chat window */}
+        {/* Chat window - removed w-full to prevent flex conflict */}
         <div className={`
           flex-1 glass-card flex flex-col overflow-hidden
-          ${isMobile && !selectedChat ? 'hidden' : 'w-full h-full'}
+          ${isMobile && !selectedChat ? 'hidden' : 'h-full'}
         `}>
           {selectedChat ? (
             <>
@@ -141,7 +313,9 @@ const ChatManager = () => {
                     <User size={16} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm">Visitor_{selectedChat.id.slice(0, 5)}</h3>
+                    <h3 className="font-bold text-sm">
+                      {profiles[selectedChat.user_id]?.full_name || selectedChat.profiles?.full_name || `Guest_${selectedChat.id.slice(0, 5)}`}
+                    </h3>
                     <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Active Now</p>
                   </div>
                 </div>
@@ -154,7 +328,7 @@ const ChatManager = () => {
                       <div className={`p-3 lg:p-4 rounded-2xl text-sm ${
                         msg.sender === 'admin' 
                           ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/10' 
-                          : 'glass border-glass-border text-white rounded-tl-none'
+                          : 'bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-tl-none'
                       }`}>
                         {msg.content}
                       </div>

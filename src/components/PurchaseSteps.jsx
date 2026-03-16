@@ -6,22 +6,22 @@ const steps = [
   {
     icon: <Search size={32} />,
     title: 'Select',
-    desc: 'Browse our curated collection of elite performance vehicles.'
+    desc: 'Browse our extensive collection of reliable pre-owned vehicles.'
   },
   {
     icon: <MessageCircle size={32} />,
     title: 'Consult',
-    desc: 'Speak with our specialists to tailor the vehicle to your vision.'
+    desc: 'Speak with our team to find the perfect vehicle for your lifestyle and budget.'
   },
   {
     icon: <Settings size={32} />,
-    title: 'Personalize',
-    desc: 'Configure every detail, from interior trim to performance tuning.'
+    title: 'Inspect',
+    desc: 'Every car undergoes a rigorous 150-point inspection for your peace of mind.'
   },
   {
     icon: <Truck size={32} />,
-    title: 'Deliver',
-    desc: 'White-glove delivery to your doorstep, anywhere in the world.'
+    title: 'Drive',
+    desc: 'Drive home today with easy financing and our comprehensive warranty.'
   }
 ];
 
@@ -69,7 +69,7 @@ const PurchaseSteps = () => {
               letterSpacing: '-0.04em'
             }}
           >
-            How to Acquire your <span style={{ color: '#ef4444' }}>Legacy</span>
+            How to Acquire your next <span style={{ color: '#ef4444' }}>Vehicle</span>
           </motion.h2>
         </div>
 

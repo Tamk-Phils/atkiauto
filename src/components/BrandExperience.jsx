@@ -4,21 +4,21 @@ import { Shield, Zap, Target, Cpu } from 'lucide-react';
 
 const blocks = [
   {
-    icon: <Zap size={48} />,
-    title: 'Pure Performance',
-    description: "Our vehicles aren't just transport—they're instruments of precision. From 0-100 in record time, engineered for the absolute purist.",
+    icon: <Shield size={48} />,
+    title: 'Certified Quality',
+    description: "Every vehicle undergoes a rigorous 150-point inspection by our certified technicians to ensure it meets our high standards for safety and reliability.",
     accent: '#ef4444'
   },
   {
-    icon: <Cpu size={48} />,
-    title: 'Precision Engineering',
-    description: "Every micron matters. We source vehicles that represent the pinnacle of automotive technology and digital innovation.",
+    icon: <Zap size={48} />,
+    title: 'Unbeatable Value',
+    description: "We price our hand-picked inventory to sell. Get more car for your money with our transparent pricing and competitive financing options.",
     accent: '#ef4444'
   },
   {
     icon: <Target size={48} />,
-    title: 'Bespoke Service',
-    description: "Your journey is unique. Our consultation process ensures that every detail, from stitching to software, is tailored to your legacy.",
+    title: 'Customer Trust',
+    description: "With nearly 30 years in the community, our reputation is built on honesty. No hidden fees, no pressure—just straightforward car buying.",
     accent: '#ef4444'
   }
 ];
@@ -78,8 +78,8 @@ const BrandExperience = () => {
                 marginBottom: '2.5rem'
               }}
             >
-              Defined by <span style={{ color: '#ef4444' }}>Excellence.</span><br />
-              Driven by Passion.
+              Defined by <span style={{ color: '#ef4444' }}>Trust.</span><br />
+              Driven by Reliability.
             </motion.h2>
           </div>
           <div>
@@ -95,7 +95,7 @@ const BrandExperience = () => {
                 fontWeight: 500
               }}
             >
-              At AttkissonAutos, we don't just sell cars. We curate masterpieces. Our legacy is built on the pursuit of automotive perfection and the satisfaction of the world's most discerning drivers.
+              At AttkissonAutos, we don't just sell cars. We provide peace of mind. Our legacy is built on the longevity of our vehicles and the absolute trust of our community.
             </motion.p>
           </div>
         </div>

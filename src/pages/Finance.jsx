@@ -45,7 +45,7 @@ const Finance = () => {
   ]
 
   return (
-    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc', color: '#0a0a0b' }}>
       <div className="container">
         <div style={{ 
           display: 'grid', 
@@ -60,10 +60,10 @@ const Finance = () => {
               Finance Department
             </p>
             <h1 style={{ fontSize: 'clamp(2rem, 3.5vw, 3.25rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '1.25rem', lineHeight: 1.1 }}>
-              Premium Financing
+              Easy Financing
             </h1>
             <p style={{ fontSize: '1.05rem', color: '#64748b', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '480px' }}>
-              Our financial experts work with a network of elite lenders to provide you with the most competitive rates and flexible terms available.
+              Our financial experts work with a network of reputable lenders to provide you with the most competitive rates and flexible terms available.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

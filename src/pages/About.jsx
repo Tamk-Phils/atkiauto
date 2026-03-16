@@ -11,26 +11,26 @@ const stats = [
 ]
 
 const team = [
-  { name: 'James Attkisson', title: 'Founder & CEO', img: '/customer_1.png', bio: 'With over three decades in the automotive industry, James built AttkissonAutos on a foundation of trust, quality, and uncompromising service.' },
-  { name: 'Sarah Mitchell', title: 'Head of Sales', img: '/customer_2.png', bio: 'Sarah brings 15 years of experience in luxury automotive sales, ensuring every client finds their perfect match.' },
-  { name: 'David Okafor', title: 'Chief Technician', img: '/customer_3.png', bio: 'A master-certified mechanic with expertise in performance vehicles and electric drivetrains.' },
+  { name: 'James Attkisson', title: 'Founder & CEO', img: '/team_1.png', bio: 'With over three decades in the automotive industry, James built AttkissonAutos on a foundation of trust, quality, and straightforward service.' },
+  { name: 'Sarah Mitchell', title: 'Head of Sales', img: '/team_2.png', bio: 'Sarah brings 15 years of experience in automotive sales, ensuring every client finds a reliable vehicle that fits their budget.' },
+  { name: 'David Okafor', title: 'Chief Technician', img: '/team_3.png', bio: 'A master-certified mechanic with expertise in rigorous multi-point inspections and maintenance.' },
 ]
 
 const values = [
   { icon: <Shield size={26} />, title: 'Integrity First', desc: 'Every vehicle is honestly represented. No hidden fees, no pressure — just transparent, trustworthy service.' },
-  { icon: <Award size={26} />, title: 'Premium Quality', desc: 'Each car undergoes a rigorous 200-point inspection before it ever reaches our showroom floor.' },
-  { icon: <Users size={26} />, title: 'Client-Centric', desc: 'Your satisfaction extends beyond the sale. We build relationships that last a lifetime.' },
-  { icon: <Wrench size={26} />, title: 'Expert Service', desc: 'Our certified technicians maintain your vehicle to the highest manufacturer standards.' },
-  { icon: <Clock size={26} />, title: 'Fast & Reliable', desc: 'Whether buying or servicing, we respect your time with efficient, streamlined processes.' },
-  { icon: <Star size={26} />, title: 'Award-Winning', desc: 'Recognized as a top-rated dealership in the region for six consecutive years running.' },
+  { icon: <Award size={26} />, title: 'Hand-Picked Quality', desc: 'Each car undergoes a rigorous 150-point inspection before it ever reaches our inventory.' },
+  { icon: <Users size={26} />, title: 'Community-Focused', desc: 'Your satisfaction extends beyond the sale. We build relationships that last a lifetime.' },
+  { icon: <Wrench size={26} />, title: 'Full Service', desc: 'Our certified technicians maintain your vehicle to the highest safety standards.' },
+  { icon: <Clock size={26} />, title: 'Fast & Reliable', desc: 'Whether buying or servicing, we respect your time with efficient, straightforward processes.' },
+  { icon: <Star size={26} />, title: 'Top Rated', desc: 'Recognized as a leading used car dealership in the region for six consecutive years running.' },
 ]
 
 const milestones = [
   { year: '1996', event: 'Founded by James Attkisson with a small showroom and a big vision.' },
-  { year: '2004', event: 'Expanded to our current flagship location in the Luxury District.' },
-  { year: '2012', event: 'Launched our certified pre-owned program with 200-point inspections.' },
-  { year: '2018', event: 'Introduced electric & hybrid vehicle specialists to the team.' },
-  { year: '2023', event: 'Surpassed 8,000 happy clients and opened our premium service centre.' },
+  { year: '2004', event: 'Expanded to our current flagship location in central Metropolis.' },
+  { year: '2012', event: 'Launched our certified pre-owned program with 150-point inspections.' },
+  { year: '2018', event: 'Introduced affordable hybrid & fuel-efficient options to the lot.' },
+  { year: '2023', event: 'Surpassed 8,000 happy clients and opened our full-service centre.' },
 ]
 
 const About = () => {
@@ -43,7 +43,7 @@ const About = () => {
   }, []);
 
   return (
-    <div style={{ paddingTop: '5rem', background: '#fff', minHeight: '100vh' }}>
+    <div style={{ paddingTop: '5rem', background: '#fff', color: '#0a0a0b', minHeight: '100vh' }}>
 
 
       {/* ── Hero Banner ── */}
@@ -83,7 +83,7 @@ const About = () => {
               marginBottom: '2.5rem',
               textAlign: isMobile ? 'center' : 'left'
             }}>
-              For nearly three decades, we've matched discerning drivers with exceptional vehicles. Our story is one of passion, integrity, and an unwavering commitment to excellence.
+              For nearly three decades, we've matched drivers with high-quality, reliable vehicles. Our story is one of trust, integrity, and an unwavering commitment to our community.
             </p>
             <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
               <Link to="/inventory" style={{
@@ -93,7 +93,7 @@ const About = () => {
                 fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.07em',
                 textTransform: 'uppercase', textDecoration: 'none',
               }}>
-                Browse Our Collection
+                Browse Inventory
                 <ArrowRight size={16} />
               </Link>
             </div>
@@ -133,9 +133,9 @@ const About = () => {
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {[
-                'AttkissonAutos was founded in 1996 by James Attkisson, a former racing enthusiast who believed that buying a car should be as thrilling as driving one.',
-                'Starting with a modest showroom of 12 vehicles in downtown Metropolis, James built a reputation for transparency and excellence that still defines us today.',
-                'Over the decades, we\'ve grown into a full-service dealership — offering curated inventory, bespoke financing solutions, and a world-class service centre — all under one roof.',
+                'AttkissonAutos was founded in 1996 by James Attkisson, an automotive expert who believed that buying a car should be simple, honest, and accessible to everyone.',
+                'Starting with a modest lot of 12 vehicles in downtown Metropolis, James built a reputation for transparency and quality that still defines us today.',
+                'Over the decades, we\'ve grown into a full-service dealership — offering hand-picked inventory, flexible financing solutions, and a comprehensive service centre — all under one roof.',
               ].map((p, i) => (
                 <p key={i} style={{ color: '#64748b', fontSize: '1rem', lineHeight: 1.8 }}>{p}</p>
               ))}
@@ -237,8 +237,8 @@ const About = () => {
             <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>Find Our Showroom</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2.5rem' }}>
               {[
-                { icon: <MapPin size={18} />, text: '123 Automotive Way, Luxury District, MT 54321' },
-                { icon: <Clock size={18} />, text: 'Mon–Fri 09:00–19:00 · Sat 10:00–17:00' },
+                { icon: <MapPin size={18} />, text: '123 Automotive Way, Central District, Metropolis' },
+                { icon: <Clock size={18} />, text: 'Mon–Fri 09:00–18:00 · Sat 10:00–16:00' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
                   <div style={{ color: '#ef4444', flexShrink: 0 }}>{item.icon}</div>
@@ -258,8 +258,8 @@ const About = () => {
           </div>
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '3rem', textAlign: 'center' }}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📍</div>
-            <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>AttkissonAutos Showroom</h3>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem' }}>Luxury District, Metropolis</p>
+            <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>AttkissonAutos Dealership</h3>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem' }}>Central District, Metropolis</p>
           </div>
         </div>
       </section>

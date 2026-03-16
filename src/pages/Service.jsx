@@ -45,7 +45,7 @@ const Service = () => {
   }
 
   return (
-    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc', color: '#0a0a0b' }}>
       <div className="container">
         {/* Header */}
         <div style={{ textAlign: isMobile ? 'left' : 'center', marginBottom: isMobile ? '3rem' : '4rem' }}>
@@ -53,7 +53,7 @@ const Service = () => {
             Service Centre
           </p>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.25rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '1rem' }}>
-            Precision Care
+            Full Service Care
           </h1>
           <p style={{ color: '#64748b', maxWidth: '520px', margin: isMobile ? '0' : '0 auto', fontSize: '1rem', lineHeight: 1.75 }}>
             Maintain peak performance with certified technicians and state-of-the-art diagnostic equipment.
@@ -92,7 +92,7 @@ const Service = () => {
                 <MapPin size={16} style={{ color: '#ef4444' }} /> Location
               </h3>
               <p style={{ color: '#64748b', fontSize: '0.875rem', lineHeight: 1.75 }}>
-                123 Automotive Way<br />Luxury District, Metropolis<br />MT 54321
+                123 Automotive Way<br />Central District, Metropolis<br />MT 54321
               </p>
               <button style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 800, background: 'none', border: 'none', cursor: 'pointer', marginTop: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', padding: 0 }}>
                 Get Directions →

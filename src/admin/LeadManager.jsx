@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Phone, CheckCircle2, Search, Trash2, Clock } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { adminSupabase } from '../lib/adminSupabase'
 
 const statusStyle = (status) => ({
   display: 'inline-block', padding: '0.25rem 0.75rem', borderRadius: '999px',
@@ -54,11 +55,11 @@ const LeadManager = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
-    await supabase.from('leads').update({ status }).eq('id', id)
+    await adminSupabase.from('leads').update({ status }).eq('id', id)
   }
 
   const deleteLead = async (id) => {
-    await supabase.from('leads').delete().eq('id', id)
+    await adminSupabase.from('leads').delete().eq('id', id)
   }
 
   const filtered = leads.filter(l =>

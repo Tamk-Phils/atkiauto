@@ -17,7 +17,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-white/50 text-lg leading-relaxed max-w-md font-medium">
-              The premier destination for luxury automotive excellence since 2000. We don't just sell cars; we deliver legacies.
+              The premier destination for quality used vehicles since 1996. We don't just sell cars; we deliver reliability and trust to our community.
             </p>
             <div className="flex gap-6">
               {[Facebook, Instagram, Twitter].map((Icon, i) => (
@@ -33,18 +33,18 @@ const Footer = () => {
             <ul className="space-y-6">
               <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Full Inventory</Link></li>
               <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">New Arrivals</Link></li>
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Classic Series</Link></li>
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Track Ready</Link></li>
+              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Family SUVs</Link></li>
+              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Daily Drivers</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-black text-sm uppercase tracking-[0.2em] mb-10 text-primary">Services</h4>
             <ul className="space-y-6">
-              <li><Link to="/finance" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Elite Finance</Link></li>
-              <li><Link to="/service" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Master Service</Link></li>
-              <li><Link to="/service" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Parts Boutique</Link></li>
-              <li><Link to="/contact" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Concierge</Link></li>
+              <li><Link to="/finance" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Easy Finance</Link></li>
+              <li><Link to="/service" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Full Service</Link></li>
+              <li><Link to="/service" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Parts & Tyres</Link></li>
+              <li><Link to="/contact" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Support</Link></li>
             </ul>
           </div>
 
@@ -53,7 +53,7 @@ const Footer = () => {
             <ul className="space-y-6 text-white/60">
               <li className="flex items-start gap-4">
                 <MapPin size={20} className="text-primary shrink-0" />
-                <span className="text-sm font-bold uppercase tracking-widest leading-relaxed">Luxury Drive 101, Beverly Hills, CA 90210</span>
+                <span className="text-sm font-bold uppercase tracking-widest leading-relaxed">123 Automotive Way, Central District, Metropolis</span>
               </li>
               <li className="flex items-center gap-4">
                 <Phone size={20} className="text-primary" />
@@ -61,7 +61,7 @@ const Footer = () => {
               </li>
               <li className="flex items-center gap-4">
                 <Mail size={20} className="text-primary" />
-                <span className="text-sm font-bold uppercase tracking-widest">concierge@attkisson.com</span>
+                <span className="text-sm font-bold uppercase tracking-widest">sales@attkisson.com</span>
               </li>
             </ul>
           </div>
@@ -69,7 +69,7 @@ const Footer = () => {
 
         <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
           <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em]">
-            © {new Date().getFullYear()} AttkissonAutos Global Group. All rights reserved.
+            © {new Date().getFullYear()} AttkissonAutos Dealership Group. All rights reserved.
           </p>
           <div className="flex gap-10 opacity-20 grayscale">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-4" />

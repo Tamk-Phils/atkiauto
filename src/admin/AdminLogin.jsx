@@ -19,13 +19,11 @@ const AdminLogin = () => {
     const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
 
-    await new Promise(r => setTimeout(r, 600)) // brief pause for UX
-
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    if (email.trim().toLowerCase() === ADMIN_EMAIL?.trim().toLowerCase() && password.trim() === ADMIN_PASSWORD?.trim()) {
       localStorage.setItem('admin_auth', 'true')
       navigate('/admin')
     } else {
-      setError('Invalid email or password.')
+      setError('Invalid credentials. Check your .env configuration.')
       setLoading(false)
     }
   }

@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Search, Menu, X } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState(null)
   const location = useLocation()
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 50)
@@ -85,20 +99,39 @@ const Navbar = () => {
           <button style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)', cursor: 'pointer', display: 'flex' }}>
             <Search size={18} />
           </button>
-          <Link to="/inventory" style={{
-            background: '#fff',
-            color: '#0a0a0b',
-            padding: '0.6rem 1.25rem',
-            borderRadius: '0.5rem',
-            fontSize: '0.7rem',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            textDecoration: 'none',
-            transition: 'all 0.2s',
-          }}>
-            View Stock
-          </Link>
+          
+          {user ? (
+            <Link to="/dashboard" style={{
+              background: 'rgba(255,255,255,0.05)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              padding: '0.6rem 1.25rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'all 0.2s',
+            }}>
+              Dashboard
+            </Link>
+          ) : (
+            <Link to="/auth" style={{
+              background: '#fff',
+              color: '#0a0a0b',
+              padding: '0.6rem 1.25rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.7rem',
+              fontWeight: 800,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              textDecoration: 'none',
+              transition: 'all 0.2s',
+            }}>
+              Join Now
+            </Link>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -127,6 +160,13 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
+            <li style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <Link to={user ? "/dashboard" : "/auth"}
+                style={{ color: '#ef4444', fontSize: '1.125rem', fontWeight: 900, textDecoration: 'none', textTransform: 'uppercase' }}
+                onClick={() => setIsMobileMenuOpen(false)}>
+                {user ? "My Dashboard" : "Sign In"}
+              </Link>
+            </li>
           </ul>
         </div>
       )}

@@ -73,19 +73,10 @@ const Inventory = () => {
   }
 
   return (
-    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc', color: '#0a0a0b' }}>
       <div className="container">
         {/* Header */}
         <div style={{ marginBottom: '3rem' }}>
-          <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-            AttkissonAutos Collection
-          </p>
-          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.03em', marginBottom: '1rem' }}>
-            Our Inventory
-          </h1>
-          <p style={{ color: '#64748b', maxWidth: '600px', fontSize: '1rem', lineHeight: 1.7 }}>
-            Every vehicle you see here is live from our database — updated in real-time by our team.
-          </p>
         </div>
 
         {/* Filters */}
@@ -99,7 +90,8 @@ const Inventory = () => {
           flexWrap: 'wrap', 
           gap: '1rem', 
           alignItems: 'center', 
-          marginBottom: '2.5rem' 
+          marginBottom: '2.5rem',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
         }}>
           <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
             <Search size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
@@ -155,7 +147,7 @@ const Inventory = () => {
                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
                     transition={{ duration: 0.25 }}
                     style={{ background: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0', overflow: 'hidden', transition: 'box-shadow 0.3s' }}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)'}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'}
                     onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}
                   >
                     {/* Image */}
@@ -187,7 +179,7 @@ const Inventory = () => {
                     <div style={{ padding: '1.75rem' }}>
                       <p style={{ color: '#94a3b8', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '0.375rem' }}>{car.type}</p>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0a0a0b', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>{car.make} {car.model}</h3>
-                      <p style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0a0a0b', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>${parseInt(car.price || 0).toLocaleString()}</p>
+                      <p style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ef4444', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>${parseInt(car.price || 0).toLocaleString()}</p>
 
                       {/* Specs */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', padding: '1rem 0', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9', marginBottom: '1.5rem' }}>
@@ -201,12 +193,17 @@ const Inventory = () => {
 
                       <Link to={`/inventory/${car.id}`} style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        background: '#0a0a0b', color: '#fff',
+                        background: '#ef4444', color: '#fff',
                         padding: '0.875rem 1.25rem', borderRadius: '0.625rem',
-                        fontWeight: 700, fontSize: '0.75rem', letterSpacing: '0.06em',
+                        fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em',
                         textTransform: 'uppercase', textDecoration: 'none',
-                      }}>
-                        View Details <ArrowRight size={14} />
+                        boxShadow: '0 8px 16px rgba(239,68,68,0.2)',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                      >
+                        Details <ArrowRight size={14} />
                       </Link>
                     </div>
                   </motion.div>
@@ -218,7 +215,7 @@ const Inventory = () => {
 
         {/* No results */}
         {!loading && cars.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '6rem 2rem', background: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0' }}>
+          <div style={{ textAlign: 'center', padding: '6rem 2rem', background: '#fff', borderRadius: '1rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0a0a0b', marginBottom: '0.75rem' }}>
               {allCars.length === 0 ? 'No vehicles in inventory yet' : 'No vehicles match your search'}
             </h3>

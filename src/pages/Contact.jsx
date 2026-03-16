@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Phone, MapPin, Send, Instagram, Twitter, Facebook } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { notifyNewLead } from '../lib/emailService'
 
 const inputStyle = {
   width: '100%', padding: '0.875rem 1rem',
@@ -34,18 +35,20 @@ const Contact = () => {
     const { error } = await supabase.from('leads').insert([{ ...formData, type: 'contact' }])
     if (error) { setStatus('error') } else {
       setStatus('success')
+      // Send email notification
+      notifyNewLead({ ...formData, type: 'contact' }).catch(err => console.error('Email notify failed:', err))
       setFormData({ name: '', email: '', phone: '', subject: 'General Inquiry', message: '' })
     }
   }
 
   const contactInfo = [
-    { icon: <Mail size={20} />, label: 'Email Us', value: 'concierge@attkissonautos.com' },
+    { icon: <Mail size={20} />, label: 'Email Us', value: 'sales@attkissonautos.com' },
     { icon: <Phone size={20} />, label: 'Call Us', value: '+1 (800) ATT-AUTO' },
-    { icon: <MapPin size={20} />, label: 'Visit Us', value: '123 Automotive Way, Luxury District' },
+    { icon: <MapPin size={20} />, label: 'Visit Us', value: '123 Automotive Way, Central District' },
   ]
 
   return (
-    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc' }}>
+    <div style={{ paddingTop: isMobile ? '6rem' : '7rem', paddingBottom: '5rem', minHeight: '100vh', background: '#f8fafc', color: '#0a0a0b' }}>
       <div className="container">
         <div style={{ 
           display: 'grid', 
