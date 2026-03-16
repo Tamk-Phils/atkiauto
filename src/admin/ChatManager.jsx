@@ -325,11 +325,14 @@ const ChatManager = () => {
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
                     <div className="max-w-[85%] lg:max-w-[70%] space-y-1">
-                      <div className={`p-3 lg:p-4 rounded-2xl text-sm ${
-                        msg.sender === 'admin' 
-                          ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/10' 
-                          : 'bg-white/10 backdrop-blur-md border border-white/10 text-white rounded-tl-none'
-                      }`}>
+                      <div 
+                        className={`p-3 lg:p-4 rounded-2xl text-sm ${
+                          msg.sender === 'admin' 
+                            ? 'bg-primary text-white rounded-tr-none shadow-lg shadow-primary/10' 
+                            : 'bg-white text-slate-900 shadow-sm border border-slate-100 rounded-tl-none'
+                        }`}
+                        style={msg.sender !== 'admin' ? { color: '#000000' } : {}}
+                      >
                         {msg.content}
                       </div>
                       <p className={`text-[10px] text-text-muted flex items-center gap-1 ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
