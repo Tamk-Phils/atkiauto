@@ -201,8 +201,11 @@ const InventoryManager = () => {
     }
     setSaving(false)
     if (error) {
-      console.error('Save error:', error)
-      showToast(`Error: ${error.message}`)
+      console.error('Save error details:', error)
+      const errorMsg = error.code === 'PGRST204' 
+        ? 'Database Schema Error: Missing "reservation_fee" column. Please run the SQL command provided.' 
+        : `Error: ${error.message}`
+      showToast(errorMsg)
     } else {
       showToast('Vehicle saved successfully!', 'success')
       setShowForm(false)
@@ -215,7 +218,12 @@ const InventoryManager = () => {
   const handleDelete = async (id) => {
     if (!confirm('Remove this vehicle from inventory?')) return
     const { error } = await adminSupabase.from('cars').delete().eq('id', id)
-    if (error) showToast(`Delete failed: ${error.message}`)
+    if (error) {
+      console.error('Delete error details:', error)
+      showToast(`Delete failed: ${error.message}`)
+    } else {
+      showToast('Vehicle deleted successfully.', 'success')
+    }
   }
 
   const filtered = cars.filter(c =>
@@ -224,33 +232,22 @@ const InventoryManager = () => {
 
   return (
     <div className="relative max-w-full overflow-x-hidden">
-      {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
-            className={`fixed top-6 right-6 z-[9999] px-5 py-3.5 rounded-xl font-bold text-sm flex items-center gap-2 shadow-2xl max-w-[360px] border ${
-              toast.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
-            }`}>
-            <AlertCircle size={16} />{toast.msg}
-          </motion.div>
-        )}
-      </AnimatePresence>
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 sm:gap-6 min-w-0">
         <div className="min-w-0 max-w-full">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-1 truncate uppercase italic">
             Inventory <span className="text-primary">Manager</span>
           </h1>
-          <p className="text-slate-500 text-[10px] sm:text-sm font-medium truncate max-w-full">Add vehicles with photo uploads — changes are live.</p>
+          <p className="text-slate-500 text-[10px] sm:text-xs font-medium truncate max-w-full">Manage your vehicle collections and real-time status.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-          <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1 sm:px-3.5 sm:py-1.5 flex-shrink-0">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="hidden xs:flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1.5 flex-shrink-0">
             <motion.div animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-1.5 h-1.5 rounded-full bg-green-500" />
             <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live</span>
           </div>
           <button onClick={openAdd}
-            className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap">
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap">
             <Plus size={16} /> Add Vehicle
           </button>
         </div>
@@ -260,9 +257,9 @@ const InventoryManager = () => {
       <AnimatePresence>
         {showForm && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center lg:p-6 overflow-hidden">
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center sm:p-6 overflow-hidden">
             <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-              className="bg-white rounded-none lg:rounded-3xl p-6 lg:p-10 w-full max-w-[800px] h-full lg:h-auto lg:max-h-[90vh] overflow-y-auto shadow-2xl relative">
+              className="bg-white lg:rounded-3xl p-6 lg:p-10 w-full max-w-[800px] h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto shadow-2xl relative">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-xl lg:text-2xl font-black text-[#0a0a0b] tracking-tight italic uppercase">
@@ -442,6 +439,25 @@ const InventoryManager = () => {
           </table>
         </div>
       </div>
+
+      {/* Toast Overlay (at end for max z-index visibility) */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+            animate={{ opacity: 1, scale: 1, y: 0 }} 
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className={`fixed bottom-6 right-6 left-6 sm:left-auto z-[9999] px-6 py-4 rounded-2xl font-black text-sm flex items-center gap-3 shadow-[0_20px_50px_rgba(0,0,0,0.3)] max-w-[400px] border-2 backdrop-blur-xl ${
+              toast.type === 'success' ? 'bg-green-50/90 border-green-200 text-green-700' : 'bg-red-50/90 border-red-200 text-red-700'
+            }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${toast.type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
+              <AlertCircle size={18} />
+            </div>
+            <div className="flex-1 leading-tight uppercase tracking-tight italic">{toast.msg}</div>
+            <button onClick={() => setToast(null)} className="ml-2 hover:opacity-70 transition-opacity"><X size={16} /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

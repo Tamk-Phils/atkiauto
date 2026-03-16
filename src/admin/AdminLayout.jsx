@@ -88,15 +88,18 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${showSidebar ? 'lg:pl-64' : 'pl-0'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${showSidebar ? 'lg:pl-64' : 'pl-0'}`}>
         {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 px-4 sm:px-6 flex items-center justify-between">
-          <button 
-            onClick={() => setShowSidebar(!showSidebar)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all active:scale-95"
-          >
-            {showSidebar ? <X size={20} /> : <Menu size={20} />}
-          </button>
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all active:scale-95"
+            >
+              {showSidebar ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <h2 className="hidden xs:block font-black text-[10px] uppercase tracking-widest text-slate-400 italic">Attkisson <span className="text-primary not-italic">Autos</span></h2>
+          </div>
 
           <div className="flex items-center gap-4">
             <AdminNotifier />
@@ -104,8 +107,10 @@ const AdminLayout = () => {
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="p-4 sm:p-6 lg:p-8 max-w-full overflow-x-hidden">
-          <Outlet />
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

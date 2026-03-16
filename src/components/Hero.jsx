@@ -187,34 +187,30 @@ const Hero = () => {
 
         {/* ── Right: Car ── */}
         <div style={{ 
-          position: isMobile ? 'absolute' : 'relative',
-          top: isMobile ? '50%' : 'auto',
-          left: isMobile ? '50%' : 'auto',
-          transform: isMobile ? 'translate(-50%, -40%)' : 'none',
-          width: isMobile ? '160%' : '100%',
-          opacity: isMobile ? 0.6 : 1,
-          zIndex: isMobile ? 0 : 1,
+          position: isMobile ? 'relative' : 'relative',
+          marginTop: isMobile ? '-2rem' : '0',
+          width: '100%',
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          pointerEvents: isMobile ? 'none' : 'auto'
+          pointerEvents: 'none'
         }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            style={{ width: '100%', position: 'relative' }}
+            style={{ width: '100%', position: 'relative', display: 'flex', justifyContent: 'center' }}
           >
             <img
               src="/hero_used_cars.png"
               alt="Quality Pre-owned Vehicles"
               style={{
-                width: '120%',
-                maxWidth: isMobile ? 'none' : '700px',
-                margin: isMobile ? '0 auto' : '0',
+                width: isMobile ? '100%' : '120%',
+                maxWidth: isMobile ? '450px' : '700px',
+                height: 'auto',
                 display: 'block',
                 borderRadius: isMobile ? '0' : '1.5rem',
-                filter: isMobile ? 'drop-shadow(0 20px 40px rgba(0,0,0,0.8)) brightness(0.8)' : 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))'
+                filter: isMobile ? 'drop-shadow(0 20px 40px rgba(0,0,0,0.8))' : 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))'
               }}
             />
 
@@ -222,9 +218,12 @@ const Hero = () => {
             {isMobile && (
               <div style={{
                 position: 'absolute',
-                inset: 0,
-                background: 'radial-gradient(circle at center, transparent 20%, #0a0a0b 80%)',
-                opacity: 0.4
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '40%',
+                background: 'linear-gradient(to top, #0a0a0b, transparent)',
+                opacity: 0.8
               }} />
             )}
 
