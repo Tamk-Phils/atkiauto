@@ -107,8 +107,8 @@ const AdminLayout = () => {
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 max-w-full overflow-hidden">
+          <div className="max-w-7xl mx-auto w-full overflow-hidden">
             <Outlet />
           </div>
         </main>

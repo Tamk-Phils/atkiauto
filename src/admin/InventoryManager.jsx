@@ -250,9 +250,10 @@ const InventoryManager = () => {
           </div>
           <button onClick={openAdd}
             className="flex-none inline-flex items-center justify-center gap-1 bg-primary text-white rounded-lg font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap"
-            style={{ padding: '0.2rem 0.4rem', fontSize: '7px' }}
+            style={{ padding: '0.4rem', fontSize: '10px' }}
           >
-            <Plus size={8} /> Add Vehicle
+            <Plus size={16} />
+            <span className="hidden sm:inline ml-1 text-[8px]">Add Vehicle</span>
           </button>
         </div>
       </div>
@@ -349,8 +350,8 @@ const InventoryManager = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <table className="border-collapse table-fixed" style={{ width: '1400px' }}>
+        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}>
+          <table className="border-collapse table-fixed" style={{ width: '1400px', minWidth: '1400px' }}>
             <thead>
               <tr className="bg-slate-50/50">
                 <th className="w-[300px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Vehicle</th>
