@@ -350,7 +350,7 @@ const InventoryManager = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}>
+        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}>
           <table className="border-collapse table-fixed" style={{ width: '1400px', minWidth: '1400px' }}>
             <thead>
               <tr className="bg-slate-50/50">
