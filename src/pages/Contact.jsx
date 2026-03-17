@@ -44,7 +44,6 @@ const Contact = () => {
   const contactInfo = [
     { icon: <Mail size={20} />, label: 'Email Us', value: 'sales@attkissonautos.com' },
     { icon: <Phone size={20} />, label: 'Call Us', value: '+1 (800) ATT-AUTO' },
-    { icon: <MapPin size={20} />, label: 'Visit Us', value: '123 Automotive Way, Central District' },
   ]
 
   return (
@@ -66,7 +65,7 @@ const Contact = () => {
               Connect With Us
             </h1>
             <p style={{ fontSize: '1.05rem', color: '#64748b', lineHeight: 1.75, marginBottom: '3rem', maxWidth: '420px' }}>
-              Our dedicated advisors are ready to assist you with any inquiries about our inventory, financing, or services.
+              Our dedicated advisors are ready to assist you with any inquiries about our inventory or financing.
             </p>
 
             {/* Contact Info */}

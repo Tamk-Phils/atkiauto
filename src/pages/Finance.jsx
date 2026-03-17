@@ -18,23 +18,43 @@ const labelStyle = {
 }
 
 const Finance = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', income: '', message: '' })
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '' })
+  const [cars, setCars] = useState([])
+  const [selectedCar, setSelectedCar] = useState(null)
   const [status, setStatus] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
 
   React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', handleResize)
+    
+    const fetchCars = async () => {
+      const { data } = await supabase.from('cars').select('id, make, model, year, reservation_fee, down_payment').eq('status', 'available')
+      if (data) setCars(data)
+    }
+    fetchCars()
+    
     return () => window.removeEventListener('resize', handleResize)
   }, [])
+
+  const handleCarChange = (id) => {
+    const car = cars.find(c => c.id === id)
+    setSelectedCar(car)
+    setFormData({ ...formData, car_id: id, down_payment: car?.down_payment || '' })
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setStatus('loading')
-    const { error } = await supabase.from('leads').insert([{ ...formData, type: 'finance' }])
+    const { error } = await supabase.from('leads').insert([{ 
+      ...formData, 
+      type: 'finance',
+      down_payment: parseFloat(formData.down_payment || 0)
+    }])
     if (error) { setStatus('error') } else {
       setStatus('success')
-      setFormData({ name: '', email: '', phone: '', income: '', message: '' })
+      setFormData({ name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '' })
+      setSelectedCar(null)
     }
   }
 
@@ -102,6 +122,17 @@ const Finance = () => {
             <h2 style={{ fontSize: '1.625rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Apply for Credit</h2>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              
+              <div>
+                <label style={labelStyle}>Select Vehicle (Optional)</label>
+                <select style={inputStyle} value={formData.car_id} onChange={e => handleCarChange(e.target.value)}>
+                  <option value="">Choose a car...</option>
+                  {cars.map(car => (
+                    <option key={car.id} value={car.id}>{car.year} {car.make} {car.model}</option>
+                  ))}
+                </select>
+              </div>
+
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
@@ -147,9 +178,36 @@ const Finance = () => {
                 </div>
               </div>
 
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                gap: '1rem' 
+              }}>
+                <div>
+                  <label style={labelStyle}>Down Payment (USD)</label>
+                  <div style={{ position: 'relative' }}>
+                    <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                    <input type="number" placeholder="0" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
+                      value={formData.down_payment} onChange={e => setFormData({ ...formData, down_payment: e.target.value })}
+                      onFocus={e => e.target.style.borderColor = '#ef4444'}
+                      onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+                  </div>
+                  {selectedCar && (
+                    <p style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.5rem', textTransform: 'uppercase' }}>
+                      Required Min: ${selectedCar.reservation_fee}
+                    </p>
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                    * Higher down payments improve approval odds.
+                  </p>
+                </div>
+              </div>
+
               <div>
                 <label style={labelStyle}>Additional Information</label>
-                <textarea placeholder="Tell us about your trade-in or specific requirements..."
+                <textarea placeholder="Tell us about your trade-in or any other details..."
                   style={{ ...inputStyle, height: '110px', resize: 'none' }}
                   value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
                   onFocus={e => e.target.style.borderColor = '#ef4444'}

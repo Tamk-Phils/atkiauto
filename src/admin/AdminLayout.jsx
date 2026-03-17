@@ -16,7 +16,7 @@ const AdminLayout = () => {
   }, [location.pathname])
 
   const handleSignOut = () => {
-    localStorage.removeItem('admin_auth')
+    sessionStorage.removeItem('admin_auth')
     navigate('/admin/login')
   }
 
@@ -88,7 +88,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${showSidebar ? 'lg:pl-64' : 'pl-0'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 max-w-full overflow-hidden transition-all duration-300 ${showSidebar ? 'lg:pl-64' : 'pl-0'}`}>
         {/* Top Header */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 h-16 flex items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ const AdminLayout = () => {
         </header>
 
         {/* Dynamic Page Content */}
-        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>

@@ -4,8 +4,8 @@ import Home from './pages/Home'
 import Inventory from './pages/Inventory'
 import CarDetail from './pages/CarDetail'
 import About from './pages/About'
-import Service from './pages/Service'
 import Contact from './pages/Contact'
+import Finance from './pages/Finance'
 import AdminLayout from './admin/AdminLayout'
 import Dashboard from './admin/Dashboard'
 import InventoryManager from './admin/InventoryManager'
@@ -33,8 +33,8 @@ function App() {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/inventory/:id" element={<CarDetail />} />
             <Route path="/about" element={<About />} />
-            <Route path="/service" element={<Service />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/finance" element={<Finance />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<UserDashboard />} />
             
@@ -54,7 +54,6 @@ function App() {
               <Route path="appointments" element={<AppointmentManager />} />
               <Route path="chats" element={<ChatManager />} />
               <Route path="users" element={<UserManager />} />
-              <Route path="leads" element={<LeadManager />} />
               <Route path="reservations" element={<ReservationManager />} />
               <Route path="settings" element={<Settings />} />
             </Route>

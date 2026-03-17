@@ -29,13 +29,17 @@ const LeadManager = () => {
   }, [])
 
   const fetchLeads = async () => {
-    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase
+      .from('leads')
+      .select('*, cars(make, model, year)')
+      .order('created_at', { ascending: false })
     if (data) setLeads(data)
     setLoading(false)
   }
 
   useEffect(() => {
     fetchLeads()
+    // ... rest same
 
     const channel = supabase.channel('rt-leads-manager')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, (payload) => {
@@ -109,7 +113,7 @@ const LeadManager = () => {
           <table className="w-full border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-slate-50/50">
-                {['Customer', 'Type', 'Status', 'Message', 'Date', 'Actions'].map(h => (
+                {['Customer', 'Type', 'Vehicle', 'Down Payment', 'Status', 'Date', 'Actions'].map(h => (
                   <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
                     {h}
                   </th>
@@ -140,17 +144,25 @@ const LeadManager = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
+                        {lead.cars ? (
+                          <div className="min-w-0">
+                            <p className="font-black text-slate-900 text-[10px] uppercase truncate">{lead.cars.year} {lead.cars.make}</p>
+                            <p className="text-[10px] font-bold text-slate-400 truncate">{lead.cars.model}</p>
+                          </div>
+                        ) : <span className="text-[10px] font-bold text-slate-300 uppercase italic">N/A</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-black text-primary text-sm tracking-tight">
+                          ${parseFloat(lead.down_payment || 0).toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
                           lead.status === 'responded' ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-600'
                         }`}>
                           <div className={`w-1 h-1 rounded-full mr-1.5 ${lead.status === 'responded' ? 'bg-green-500' : 'bg-red-500'}`} />
                           {lead.status ?? 'new'}
                         </span>
-                      </td>
-                      <td className="px-6 py-4 max-w-[240px]">
-                        <p className="text-xs font-medium text-slate-500 truncate" title={lead.message}>
-                          {lead.message || '—'}
-                        </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">

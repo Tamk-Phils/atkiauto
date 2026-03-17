@@ -78,7 +78,7 @@ const Auth = () => {
         animate={{ opacity: 1, y: 0 }}
         style={{
           width: '100%',
-          maxWidth: '440px',
+          maxWidth: '380px',
           background: 'rgba(255,255,255,0.02)',
           backdropFilter: 'blur(20px)',
           border: '1px solid rgba(255,255,255,0.06)',

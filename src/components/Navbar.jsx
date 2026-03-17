@@ -43,7 +43,7 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Inventory', path: '/inventory' },
     { name: 'About', path: '/about' },
-    { name: 'Service', path: '/service' },
+    { name: 'Finance', path: '/finance' },
     { name: 'Contact', path: '/contact' },
   ]
 
@@ -65,13 +65,9 @@ const Navbar = () => {
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           <div style={{
             width: 36, height: 36,
-            background: '#ef4444',
-            borderRadius: '8px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg viewBox="0 0 24 24" fill="white" width={20} height={20}>
-              <path d="M5 3h14a1 1 0 011 1v3a1 1 0 01-.293.707L14 13.414V21a1 1 0 01-1.447.894l-4-2A1 1 0 018 19v-5.586L4.293 7.707A1 1 0 014 7V4a1 1 0 011-1z"/>
-            </svg>
+            <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <span style={{ color: '#fff', fontWeight: 900, fontSize: '1.125rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
             Attkisson<span style={{ color: '#ef4444' }}>Autos</span>

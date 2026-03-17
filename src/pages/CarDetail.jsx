@@ -138,7 +138,10 @@ const CarDetail = () => {
               <h1 className="text-3xl lg:text-5xl font-black mb-2">{car.make} {car.model}</h1>
               <div className="flex items-baseline gap-4">
                 <p className="text-3xl lg:text-4xl font-black text-primary">${parseInt(car.price || 0).toLocaleString()}</p>
-                <p className="text-sm text-text-muted">Reservation Fee: <span className="text-primary font-bold">${parseInt(car.reservation_fee || 0).toLocaleString()}</span></p>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-xs text-text-muted font-bold uppercase tracking-wider">Reservation: <span className="text-primary">${parseInt(car.reservation_fee || 0).toLocaleString()}</span></p>
+                  <p className="text-xs text-text-muted font-bold uppercase tracking-wider">Down Payment: <span className="text-blue-600">${parseInt(car.down_payment || 0).toLocaleString()}</span></p>
+                </div>
               </div>
             </div>
 

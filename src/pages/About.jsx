@@ -224,46 +224,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* ── Location & CTA ── */}
-      <section style={{ padding: isMobile ? '5rem 0' : '6rem 0', background: '#0a0a0b' }}>
-        <div className="container" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-          gap: isMobile ? '4rem' : '6rem', 
-          alignItems: 'center' 
-        }}>
-          <div>
-            <p style={{ color: '#ef4444', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Visit Us</p>
-            <h2 style={{ fontSize: 'clamp(1.75rem, 3vw, 2.75rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.03em', marginBottom: '1.5rem' }}>Find Our Showroom</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2.5rem' }}>
-              {[
-                { icon: <MapPin size={18} />, text: '123 Automotive Way, Central District, Metropolis' },
-                { icon: <Clock size={18} />, text: 'Mon–Fri 09:00–18:00 · Sat 10:00–16:00' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>
-                  <div style={{ color: '#ef4444', flexShrink: 0 }}>{item.icon}</div>
-                  {item.text}
-                </div>
-              ))}
-            </div>
-            <Link to="/contact" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
-              background: '#ef4444', color: '#fff',
-              padding: '0.9rem 1.75rem', borderRadius: '0.625rem',
-              fontWeight: 800, fontSize: '0.8rem', letterSpacing: '0.07em',
-              textTransform: 'uppercase', textDecoration: 'none',
-            }}>
-              Get in Touch <ArrowRight size={16} />
-            </Link>
-          </div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '1.25rem', padding: '3rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📍</div>
-            <h3 style={{ color: '#fff', fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.5rem' }}>AttkissonAutos Dealership</h3>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.875rem' }}>Central District, Metropolis</p>
-          </div>
-        </div>
-      </section>
-
     </div>
   )
 }

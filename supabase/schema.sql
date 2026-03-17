@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS cars (
   description     TEXT,
   features        TEXT[]        DEFAULT '{}',
   reservation_fee DECIMAL(10,2) DEFAULT 0.00,
+  down_payment    DECIMAL(10,2) DEFAULT 0.00,
   created_at      TIMESTAMPTZ   DEFAULT NOW()
 );
 
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS leads (
   type        TEXT        DEFAULT 'contact', -- 'contact' | 'inquiry'
   status      TEXT        DEFAULT 'new',     -- 'new' | 'responded'
   car_id      UUID        REFERENCES cars(id) ON DELETE SET NULL,
+  down_payment DECIMAL(10,2) DEFAULT 0.00,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
 /* ─── Constants ─────────────────────────────────────── */
-const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available', reservation_fee: '' }
+const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available', reservation_fee: '', down_payment: '' }
 
 /* ─── Image Uploader Component ───────────────────────── */
 const ImageUploader = ({ existingImages = [], onImagesChange }) => {
@@ -173,7 +173,8 @@ const InventoryManager = () => {
       mileage: car.mileage || '', 
       transmission: car.transmission || 'Automatic', 
       status: car.status || 'available', 
-      reservation_fee: car.reservation_fee || '' 
+      reservation_fee: car.reservation_fee || '',
+      down_payment: car.down_payment || '' 
     })
     setFormImages(car.images || (car.image_url ? [car.image_url] : []))
     setEditId(car.id)
@@ -188,6 +189,7 @@ const InventoryManager = () => {
       year: parseInt(form.year),
       price: parseFloat(form.price),
       reservation_fee: parseFloat(form.reservation_fee || 0),
+      down_payment: parseFloat(form.down_payment || 0),
       images: formImages,
       image_url: formImages[0] || null,
     }
@@ -231,7 +233,7 @@ const InventoryManager = () => {
   )
 
   return (
-    <div className="relative max-w-full overflow-x-hidden">
+    <div className="relative max-w-full">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4 sm:gap-6 min-w-0">
@@ -247,8 +249,10 @@ const InventoryManager = () => {
             <span className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none">Live</span>
           </div>
           <button onClick={openAdd}
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 bg-primary text-white px-5 py-3 sm:py-2.5 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap">
-            <Plus size={16} /> Add Vehicle
+            className="flex-none inline-flex items-center justify-center gap-1 bg-primary text-white rounded-lg font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all whitespace-nowrap"
+            style={{ padding: '0.2rem 0.4rem', fontSize: '7px' }}
+          >
+            <Plus size={8} /> Add Vehicle
           </button>
         </div>
       </div>
@@ -277,6 +281,7 @@ const InventoryManager = () => {
                   { key: 'year',   label: 'Year',         placeholder: '2024', type: 'number' },
                   { key: 'price',  label: 'Price (USD)',  placeholder: '89900', type: 'number' },
                   { key: 'reservation_fee', label: 'Reservation Fee (USD)', placeholder: '500', type: 'number' },
+                  { key: 'down_payment',    label: 'Down Payment (USD)',    placeholder: '2000', type: 'number' },
                   { key: 'type',   label: 'Vehicle Type', placeholder: 'Electric Sedan' },
                   { key: 'fuel',   label: 'Fuel Type',    placeholder: 'Electric' },
                   { key: 'mileage',label: 'Mileage',      placeholder: '1,200 mi' },
@@ -344,14 +349,14 @@ const InventoryManager = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full border-collapse min-w-[1000px] table-fixed">
+        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <table className="border-collapse table-fixed" style={{ width: '1400px' }}>
             <thead>
               <tr className="bg-slate-50/50">
                 <th className="w-[300px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Vehicle</th>
                 <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Photos</th>
                 <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Status</th>
-                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Price / Fee</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Fee / Down</th>
                 <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Specs</th>
                 <th className="w-[100px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Actions</th>
               </tr>
@@ -413,7 +418,10 @@ const InventoryManager = () => {
                         <td className="px-6 py-4">
                           <div className="flex flex-col min-w-0">
                             <span className="font-black text-slate-900 text-sm truncate tracking-tight">${parseInt(car.price || 0).toLocaleString()}</span>
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5 truncate">Fee: ${parseInt(car.reservation_fee || 0).toLocaleString()}</span>
+                            <div className="flex flex-col gap-0.5 mt-0.5">
+                              <span className="text-[9px] font-black text-primary uppercase tracking-widest truncate">Res: ${parseInt(car.reservation_fee || 0).toLocaleString()}</span>
+                              <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest truncate">Down: ${parseInt(car.down_payment || 0).toLocaleString()}</span>
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest leading-relaxed">

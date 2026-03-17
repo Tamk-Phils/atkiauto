@@ -20,7 +20,7 @@ const AdminLogin = () => {
     const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
 
     if (email.trim().toLowerCase() === ADMIN_EMAIL?.trim().toLowerCase() && password.trim() === ADMIN_PASSWORD?.trim()) {
-      localStorage.setItem('admin_auth', 'true')
+      sessionStorage.setItem('admin_auth', 'true')
       navigate('/admin')
     } else {
       setError('Invalid credentials. Check your .env configuration.')
@@ -51,7 +51,8 @@ const AdminLogin = () => {
         initial={{ opacity: 0, y: 30, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[420px] relative z-10"
+        className="w-full relative z-10"
+        style={{ maxWidth: '380px' }}
       >
         {/* Logo Block */}
         <div className="text-center mb-10">
@@ -59,12 +60,12 @@ const AdminLogin = () => {
             initial={{ scale: 0.5, rotate: -10 }}
             animate={{ scale: 1, rotate: 3 }}
             transition={{ type: 'spring', stiffness: 200, damping: 14, delay: 0.2 }}
-            className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-[0_12px_40px_rgba(239,68,68,0.35)]"
+            className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-red-100 shadow-inner"
           >
-            <Shield size={30} className="text-white" />
+            <Shield className="text-primary" size={20} />
           </motion.div>
-          <h1 className="text-3xl font-black text-white tracking-tight mb-2">
-            Admin <span className="text-primary">Portal</span>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2 uppercase italic">
+            Admin<span className="text-primary not-italic">Portal</span>
           </h1>
           <p className="text-white/40 text-[13px] font-medium uppercase tracking-widest">
             Secure access — Staff Only

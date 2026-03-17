@@ -194,10 +194,10 @@ const Inventory = () => {
                       <Link to={`/inventory/${car.id}`} style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         background: '#ef4444', color: '#fff',
-                        padding: '0.875rem 1.25rem', borderRadius: '0.625rem',
-                        fontWeight: 800, fontSize: '0.75rem', letterSpacing: '0.1em',
+                        padding: '0.6rem 1rem', borderRadius: '0.625rem',
+                        fontWeight: 800, fontSize: '0.65rem', letterSpacing: '0.1em',
                         textTransform: 'uppercase', textDecoration: 'none',
-                        boxShadow: '0 8px 16px rgba(239,68,68,0.2)',
+                        boxShadow: '0 6px 12px rgba(239,68,68,0.15)',
                         transition: 'all 0.2s'
                       }}
                       onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
