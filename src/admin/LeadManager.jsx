@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Phone, CheckCircle2, Search, Trash2, Clock } from 'lucide-react'
+import { Mail, Phone, CheckCircle2, Search, Trash2, Clock, Eye, X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
@@ -20,6 +20,7 @@ const LeadManager = () => {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [newCount, setNewCount] = useState(0)
+  const [selectedLead, setSelectedLead] = useState(null)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
 
   useEffect(() => {
@@ -171,6 +172,13 @@ const LeadManager = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {lead.type === 'finance' && (
+                            <button onClick={() => setSelectedLead(lead)}
+                              title="View Details"
+                              className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-blue-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">
+                              <Eye size={16} />
+                            </button>
+                          )}
                           <button onClick={() => updateStatus(lead.id, lead.status === 'responded' ? 'new' : 'responded')}
                             title="Toggle status"
                             className="w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-green-500 hover:border-green-200 hover:bg-green-50 transition-all shadow-sm">
@@ -190,6 +198,112 @@ const LeadManager = () => {
           </table>
         </div>
       </div>
+
+      {/* Details Modal */}
+      <AnimatePresence>
+        {selectedLead && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Application Details</h2>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{selectedLead.name} • {selectedLead.type}</p>
+                </div>
+                <button onClick={() => setSelectedLead(null)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                {/* Summary Section */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Down Payment</p>
+                    <p className="text-xl font-black text-primary">${parseFloat(selectedLead.down_payment || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Income</p>
+                    <p className="text-xl font-black text-slate-900">${parseFloat(selectedLead.income || 0).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                {/* Data Sections */}
+                {selectedLead.data ? (
+                  <>
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3">Personal & Residence</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">DOB</p><p className="font-bold">{selectedLead.data.dob || 'N/A'}</p></div>
+                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p><p className="font-bold">{selectedLead.phone || 'N/A'}</p></div>
+                        <div className="sm:col-span-2 text-primary bg-primary/5 p-3 rounded-xl border border-primary/10">
+                          <p className="text-[10px] font-bold uppercase mb-1">Current Address</p>
+                          <p className="font-black leading-tight">
+                            {selectedLead.data.address}<br />
+                            {selectedLead.data.city}, {selectedLead.data.state} {selectedLead.data.zip}
+                          </p>
+                          <p className="mt-2 text-[10px] font-bold">Duration: {selectedLead.data.duration_at_address}</p>
+                        </div>
+                        {selectedLead.data.prev_address && (
+                          <div className="sm:col-span-2">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">Previous Address</p>
+                            <p className="text-slate-600 italic text-xs">{selectedLead.data.prev_address}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3">Identification</h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">DL Number</p><p className="font-bold">{selectedLead.data.dl_number}</p></div>
+                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">State</p><p className="font-bold">{selectedLead.data.dl_state}</p></div>
+                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">Expiry</p><p className="font-bold">{selectedLead.data.dl_expiry}</p></div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3">References</h3>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center justify-between text-sm">
+                        <div>
+                          <p className="font-black text-slate-900">{selectedLead.data.ref_name || 'No reference provided'}</p>
+                          <p className="text-xs text-slate-500 font-bold">{selectedLead.data.ref_relationship}</p>
+                        </div>
+                        {selectedLead.data.ref_phone && (
+                          <div className="text-right">
+                            <p className="font-bold text-primary">{selectedLead.data.ref_phone}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {selectedLead.message && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Additional Notes</p>
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm text-slate-600 leading-relaxed italic">
+                          "{selectedLead.message}"
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="py-12 text-center text-slate-400 italic">No additional financing data available.</div>
+                )}
+              </div>
+              
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                <button onClick={() => updateStatus(selectedLead.id, 'responded')} 
+                  className="flex-1 bg-green-500 text-white font-black uppercase tracking-widest py-4 rounded-2xl text-[10px] hover:bg-green-600 transition-colors shadow-lg shadow-green-200">
+                  Mark as Responded
+                </button>
+                <button onClick={() => setSelectedLead(null)} className="flex-1 bg-white border border-slate-200 text-slate-400 font-black uppercase tracking-widest py-4 rounded-2xl text-[10px] hover:bg-slate-100 transition-colors">
+                  Close Detail
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

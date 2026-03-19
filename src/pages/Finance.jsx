@@ -18,7 +18,13 @@ const labelStyle = {
 }
 
 const Finance = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '' })
+  const [formData, setFormData] = useState({ 
+    name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '',
+    dob: '', address: '', city: '', state: '', zip: '', duration_at_address: '', prev_address: '',
+    dl_number: '', dl_state: '', dl_expiry: '',
+    ref_name: '', ref_phone: '', ref_relationship: '',
+    authorized: false
+  })
   const [cars, setCars] = useState([])
   const [selectedCar, setSelectedCar] = useState(null)
   const [status, setStatus] = useState(null)
@@ -45,15 +51,40 @@ const Finance = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!formData.authorized) {
+      alert("Please authorize the application to proceed.")
+      return
+    }
     setStatus('loading')
+
+    const { 
+      name, email, phone, income, message, car_id, down_payment,
+      ...additionalData 
+    } = formData
+
     const { error } = await supabase.from('leads').insert([{ 
-      ...formData, 
+      name, 
+      email, 
+      phone, 
+      income, 
+      message, 
+      car_id: car_id || null, 
       type: 'finance',
-      down_payment: parseFloat(formData.down_payment || 0)
+      down_payment: parseFloat(down_payment || 0),
+      data: additionalData
     }])
-    if (error) { setStatus('error') } else {
+    if (error) { 
+      console.error(error)
+      setStatus('error') 
+    } else {
       setStatus('success')
-      setFormData({ name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '' })
+      setFormData({ 
+        name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '',
+        dob: '', address: '', city: '', state: '', zip: '', duration_at_address: '', prev_address: '',
+        dl_number: '', dl_state: '', dl_expiry: '',
+        ref_name: '', ref_phone: '', ref_relationship: '',
+        authorized: false
+      })
       setSelectedCar(null)
     }
   }
@@ -119,7 +150,7 @@ const Finance = () => {
               padding: isMobile ? '1.5rem' : '2.5rem' 
             }}
           >
-            <h2 style={{ fontSize: '1.625rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Apply for Credit</h2>
+            <h2 style={{ fontSize: '1.625rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em', marginBottom: '2rem' }}>Apply for Financing</h2>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               
@@ -133,85 +164,169 @@ const Finance = () => {
                 </select>
               </div>
 
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: '1rem' 
-              }}>
-                <div>
-                  <label style={labelStyle}>Full Name</label>
-                  <input required type="text" placeholder="John Doe" style={inputStyle}
-                    value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    onFocus={e => e.target.style.borderColor = '#ef4444'}
-                    onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+              {/* 1. Personal Information */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>1. Personal Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Full Name</label>
+                    <input required type="text" placeholder="John Doe" style={inputStyle}
+                      value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Date of Birth</label>
+                    <input required type="date" style={inputStyle}
+                      value={formData.dob} onChange={e => setFormData({ ...formData, dob: e.target.value })} />
+                  </div>
                 </div>
-                <div>
-                  <label style={labelStyle}>Email Address</label>
-                  <input required type="email" placeholder="john@example.com" style={inputStyle}
-                    value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })}
-                    onFocus={e => e.target.style.borderColor = '#ef4444'}
-                    onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Phone Number</label>
+                    <input required type="tel" placeholder="+1 (555) 000-0000" style={inputStyle}
+                      value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Email Address</label>
+                    <input required type="email" placeholder="john@example.com" style={inputStyle}
+                      value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={labelStyle}>Current Address</label>
+                  <input required type="text" placeholder="123 Street Name" style={inputStyle}
+                    value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>City</label>
+                    <input required type="text" placeholder="City" style={inputStyle}
+                      value={formData.city} onChange={e => setFormData({ ...formData, city: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>State</label>
+                    <input required type="text" placeholder="State" style={inputStyle}
+                      value={formData.state} onChange={e => setFormData({ ...formData, state: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Zip Code</label>
+                    <input required type="text" placeholder="12345" style={inputStyle}
+                      value={formData.zip} onChange={e => setFormData({ ...formData, zip: e.target.value })} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Monthly Income (USD)</label>
+                    <div style={{ position: 'relative' }}>
+                      <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                      <input required type="number" placeholder="5,000" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
+                        value={formData.income} onChange={e => setFormData({ ...formData, income: e.target.value })} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>How long at this address?</label>
+                    <input required type="text" placeholder="e.g., 3 years" style={inputStyle}
+                      value={formData.duration_at_address} onChange={e => setFormData({ ...formData, duration_at_address: e.target.value })} />
+                  </div>
+                </div>
+
+                <div style={formData.duration_at_address.toLowerCase().includes('year') && parseInt(formData.duration_at_address) < 2 ? { marginBottom: '1rem' } : { marginBottom: '1rem' }}>
+                   <label style={labelStyle}>Previous Address (if less than 2 years)</label>
+                   <textarea placeholder="Previous street, city, state, zip..."
+                    style={{ ...inputStyle, height: '80px', resize: 'none' }}
+                    value={formData.prev_address} onChange={e => setFormData({ ...formData, prev_address: e.target.value })} />
                 </div>
               </div>
 
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: '1rem' 
-              }}>
-                <div>
-                  <label style={labelStyle}>Phone Number</label>
-                  <input type="tel" placeholder="+1 (555) 000-0000" style={inputStyle}
-                    value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                    onFocus={e => e.target.style.borderColor = '#ef4444'}
-                    onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
-                </div>
-                <div>
-                  <label style={labelStyle}>Monthly Income (USD)</label>
-                  <div style={{ position: 'relative' }}>
-                    <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                    <input type="number" placeholder="5,000" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
-                      value={formData.income} onChange={e => setFormData({ ...formData, income: e.target.value })}
-                      onFocus={e => e.target.style.borderColor = '#ef4444'}
-                      onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+              {/* 2. Identification */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>2. Identification</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>DL/ID Number</label>
+                    <input required type="text" placeholder="Number" style={inputStyle}
+                      value={formData.dl_number} onChange={e => setFormData({ ...formData, dl_number: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>State of Issue</label>
+                    <input required type="text" placeholder="State" style={inputStyle}
+                      value={formData.dl_state} onChange={e => setFormData({ ...formData, dl_state: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Expiration Date</label>
+                    <input required type="date" style={inputStyle}
+                      value={formData.dl_expiry} onChange={e => setFormData({ ...formData, dl_expiry: e.target.value })} />
                   </div>
                 </div>
               </div>
 
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-                gap: '1rem' 
-              }}>
-                <div>
-                  <label style={labelStyle}>Down Payment (USD)</label>
-                  <div style={{ position: 'relative' }}>
-                    <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                    <input type="number" placeholder="0" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
-                      value={formData.down_payment} onChange={e => setFormData({ ...formData, down_payment: e.target.value })}
-                      onFocus={e => e.target.style.borderColor = '#ef4444'}
-                      onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+              {/* 3. References (Optional) */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>3. References (Optional)</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Reference Name</label>
+                    <input type="text" placeholder="Name" style={inputStyle}
+                      value={formData.ref_name} onChange={e => setFormData({ ...formData, ref_name: e.target.value })} />
                   </div>
-                  {selectedCar && (
-                    <p style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.5rem', textTransform: 'uppercase' }}>
-                      Required Min: ${selectedCar.reservation_fee}
+                  <div>
+                    <label style={labelStyle}>Phone Number</label>
+                    <input type="tel" placeholder="Phone" style={inputStyle}
+                      value={formData.ref_phone} onChange={e => setFormData({ ...formData, ref_phone: e.target.value })} />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Relationship</label>
+                    <input type="text" placeholder="e.g., Friend" style={inputStyle}
+                      value={formData.ref_relationship} onChange={e => setFormData({ ...formData, ref_relationship: e.target.value })} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Financing Details */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>Financing Details</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Down Payment (USD)</label>
+                    <div style={{ position: 'relative' }}>
+                      <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                      <input required type="number" placeholder="0" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
+                        value={formData.down_payment} onChange={e => setFormData({ ...formData, down_payment: e.target.value })} />
+                    </div>
+                    {selectedCar && (
+                      <p style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.5rem', textTransform: 'uppercase' }}>
+                        Required Min: ${selectedCar.reservation_fee}
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginBottom: '0.5rem' }}>
+                      * Higher down payments improve approval odds.
                     </p>
-                  )}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginBottom: '0.5rem' }}>
-                    * Higher down payments improve approval odds.
-                  </p>
+
+                <div>
+                  <label style={labelStyle}>Additional Information (Optional)</label>
+                  <textarea placeholder="Tell us about your trade-in or any other details..."
+                    style={{ ...inputStyle, height: '110px', resize: 'none' }}
+                    value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} />
                 </div>
               </div>
 
-              <div>
-                <label style={labelStyle}>Additional Information</label>
-                <textarea placeholder="Tell us about your trade-in or any other details..."
-                  style={{ ...inputStyle, height: '110px', resize: 'none' }}
-                  value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })}
-                  onFocus={e => e.target.style.borderColor = '#ef4444'}
-                  onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
+              {/* 4. Authorization */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>4. Authorization</h3>
+                <label style={{ display: 'flex', gap: '1rem', cursor: 'pointer', alignItems: 'flex-start' }}>
+                  <input required type="checkbox" checked={formData.authorized} onChange={e => setFormData({ ...formData, authorized: e.target.checked })}
+                    style={{ marginTop: '0.25rem' }} />
+                  <span style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: 1.6 }}>
+                    I hereby authorize <strong>Attkisson Autos</strong> or its financing partners to verify my employment, income and residence information for the purpose of processing this vehicle financing application.
+                  </span>
+                </label>
               </div>
 
               <button disabled={status === 'loading'} style={{
@@ -222,6 +337,7 @@ const Finance = () => {
                 textTransform: 'uppercase', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
                 transition: 'background 0.2s',
+                marginTop: '1.5rem',
                 opacity: status === 'loading' ? 0.7 : 1,
               }}>
                 {status === 'loading' ? 'Processing...' : (<>Submit Application <Send size={16} /></>)}

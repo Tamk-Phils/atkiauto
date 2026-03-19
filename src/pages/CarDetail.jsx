@@ -218,9 +218,6 @@ const CarDetail = () => {
                 {reserving ? 'Reserving...' : car.status !== 'available' ? `Vehicle ${car.status}` : 'Reserve This Vehicle'}
                 <ArrowRight size={20} />
               </button>
-              <button className="px-8 py-4 lg:py-5 text-base lg:text-lg border-2 border-[#e2e8f0] rounded-xl font-bold hover:bg-[#f1f5f9] transition-colors">
-                Book Test Drive
-              </button>
             </div>
 
             {showSuccess && (
