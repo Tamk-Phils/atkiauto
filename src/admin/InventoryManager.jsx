@@ -5,7 +5,21 @@ import { supabase } from '../lib/supabase'
 import { adminSupabase } from '../lib/adminSupabase'
 
 /* ─── Constants ─────────────────────────────────────── */
-const EMPTY = { make: '', model: '', year: '', type: '', price: '', fuel: '', mileage: '', transmission: 'Automatic', status: 'available', reservation_fee: '', down_payment: '' }
+const EMPTY = { 
+  make: '', 
+  model: '', 
+  year: '', 
+  type: '', 
+  price: '', 
+  fuel: '', 
+  mileage: '', 
+  transmission: 'Automatic', 
+  status: 'available', 
+  reservation_fee: '', 
+  down_payment: '',
+  description: '',
+  features: '' // Form uses a string for editing
+}
 
 /* ─── Image Uploader Component ───────────────────────── */
 const ImageUploader = ({ existingImages = [], onImagesChange }) => {
@@ -174,7 +188,9 @@ const InventoryManager = () => {
       transmission: car.transmission || 'Automatic', 
       status: car.status || 'available', 
       reservation_fee: car.reservation_fee || '',
-      down_payment: car.down_payment || '' 
+      down_payment: car.down_payment || '',
+      description: car.description || '',
+      features: car.features ? car.features.join('\n') : ''
     })
     setFormImages(car.images || (car.image_url ? [car.image_url] : []))
     setEditId(car.id)
@@ -190,6 +206,8 @@ const InventoryManager = () => {
       price: parseFloat(form.price),
       reservation_fee: parseFloat(form.reservation_fee || 0),
       down_payment: parseFloat(form.down_payment || 0),
+      description: form.description,
+      features: form.features ? form.features.split('\n').map(f => f.trim()).filter(f => f) : [],
       images: formImages,
       image_url: formImages[0] || null,
     }
@@ -313,6 +331,27 @@ const InventoryManager = () => {
                     <option value="reserved">Reserved</option>
                     <option value="sold">Sold</option>
                   </select>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block leading-none">Vehicle Description</label>
+                  <textarea 
+                    placeholder="Provide a detailed description of the vehicle condition, history, and highlights..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white min-h-[120px]"
+                    value={form.description}
+                    onChange={e => setForm({ ...form, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block leading-none">Key Features (One per line)</label>
+                  <textarea 
+                    placeholder="Heated Seats&#10;Navigation System&#10;Premium Audio..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 px-4 text-sm font-bold text-slate-900 outline-none transition-all focus:border-primary focus:bg-white min-h-[100px]"
+                    value={form.features}
+                    onChange={e => setForm({ ...form, features: e.target.value })}
+                  />
+                  <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tight">Enter each feature on a separate line</p>
                 </div>
 
                 <ImageUploader

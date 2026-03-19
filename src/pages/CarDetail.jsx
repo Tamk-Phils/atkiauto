@@ -185,23 +185,26 @@ const CarDetail = () => {
             </div>
 
             <div className="mb-10">
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-slate-900 uppercase tracking-tight italic">
                 <Info size={20} className="text-primary" />
                 Description
               </h2>
               <p className="text-[#64748b] leading-relaxed">
-                {car.description}
+                {car.description || "No description provided for this vehicle. Please contact our sales team for full specifications and history."}
               </p>
             </div>
 
             <div className="mb-10">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-slate-900 uppercase tracking-tight italic">
                 <Zap size={20} className="text-primary" />
                 Key Features
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4">
-                {(car.features || ['Premium Audio', 'Navigation System', 'Leather Interior', 'Keyless Entry']).map(feature => (
-                  <div key={feature} className="flex items-center gap-2 text-sm">
+                {(car.features && car.features.length > 0 
+                  ? car.features 
+                  : ['Premium Audio System', 'Modern Safety Package', 'Luxury Interior', 'Performance Wheels']
+                ).map(feature => (
+                  <div key={feature} className="flex items-center gap-2 text-sm font-bold text-slate-600">
                     <ShieldCheck size={18} className="text-primary" />
                     {feature}
                   </div>
@@ -226,32 +229,69 @@ const CarDetail = () => {
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   style={{
-                    background: '#111112',
-                    border: '1px solid rgba(239, 68, 68, 0.2)',
-                    padding: '2.5rem',
-                    borderRadius: '2rem',
-                    maxWidth: '440px',
+                    background: '#ffffff',
+                    padding: '3rem 2.5rem',
+                    borderRadius: '2.5rem',
+                    maxWidth: '480px',
                     width: '100%',
                     textAlign: 'center',
                     position: 'relative',
-                    boxShadow: '0 24px 48px rgba(0,0,0,0.5)'
+                    boxShadow: '0 32px 64px -12px rgba(0,0,0,0.15)',
+                    border: '1px solid #f1f5f9'
                   }}
                 >
-                  <button onClick={() => setShowSuccess(false)} className="absolute top-4 right-4 text-text-muted hover:text-white"><X size={20} /></button>
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
-                    <Check size={32} />
+                  <button onClick={() => setShowSuccess(false)} className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition-colors"><X size={24} /></button>
+                  
+                  {/* Status Icon */}
+                  <div className="mb-8 flex justify-center">
+                    <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white shadow-2xl shadow-primary/40 ring-8 ring-primary/10">
+                      <Check size={40} strokeWidth={3} />
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-black mb-4 uppercase tracking-tighter">Reservation Placed Successfully!</h2>
-                  <p className="text-text-muted mb-8 leading-relaxed">
-                    Your request for the <strong>{car.year} {car.make} {car.model}</strong> has been logged. 
-                    Please contact our sales team via email or our live chat to proceed with the <strong>${car.reservation_fee}</strong> booking fee and finalize your reservation.
+
+                  {/* Header */}
+                  <h2 className="text-3xl font-black mb-3 uppercase tracking-tighter text-slate-900">Reservation Initiated</h2>
+                  <p className="text-slate-500 text-sm mb-8 leading-relaxed max-w-sm mx-auto font-medium">
+                    Your request for the <span className="text-slate-900 font-bold">{car.year} {car.make} {car.model}</span> has been logged.
                   </p>
+                  
+                  {/* Summary Box */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-3xl p-6 mb-8 text-left shadow-inner">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 text-center">Booking Summary</p>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center group">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Booking Fee</span>
+                        <span className="text-base font-black text-primary px-3 py-1 bg-primary/5 rounded-lg border border-primary/10 tracking-tight">
+                          ${parseInt(car.reservation_fee || 0).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="h-px bg-slate-200 w-full opacity-50" />
+                      <div className="flex justify-between items-center group">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Down Payment</span>
+                        <span className="text-base font-black text-blue-600 px-3 py-1 bg-blue-50 rounded-lg border border-blue-100 tracking-tight">
+                          ${parseInt(car.down_payment || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] font-bold text-slate-400 mb-8 leading-relaxed italic uppercase tracking-widest bg-slate-100 py-3 rounded-xl">
+                    Contact our team via live chat to finalize payment
+                  </p>
+
+                  {/* Actions */}
                   <div className="flex flex-col gap-3">
-                    <button onClick={() => navigate('/dashboard')} className="btn btn-primary w-full py-4 text-sm uppercase tracking-widest font-black">
-                      Go to Dashboard
+                    <button 
+                      onClick={() => navigate('/dashboard')} 
+                      className="w-full bg-primary hover:bg-primary/90 text-white py-5 rounded-2xl text-[11px] uppercase tracking-[0.25em] font-black shadow-xl shadow-primary/25 transition-all active:scale-[0.98]"
+                    >
+                      Management Dashboard
                     </button>
-                    <button onClick={() => setShowSuccess(false)} className="text-sm text-text-muted hover:text-white font-bold transition-colors">
-                      Continue Browsing
+                    <button 
+                      onClick={() => setShowSuccess(false)} 
+                      className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-colors py-3"
+                    >
+                      Dismiss & Continue Browsing
                     </button>
                   </div>
                 </motion.div>

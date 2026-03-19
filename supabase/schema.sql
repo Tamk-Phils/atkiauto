@@ -69,17 +69,6 @@ CREATE TABLE IF NOT EXISTS reviews (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Reservations
-CREATE TABLE IF NOT EXISTS reservations (
-  id              UUID        DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id         UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  car_id          UUID        NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
-  fee             DECIMAL(10,2) NOT NULL,
-  status          TEXT        DEFAULT 'pending', -- 'pending' | 'paid' | 'completed' | 'cancelled'
-  payment_status  TEXT        DEFAULT 'unpaid',  -- 'unpaid' | 'paid'
-  created_at      TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- Profiles (extra user info)
 CREATE TABLE IF NOT EXISTS profiles (
   id          UUID        REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
@@ -87,6 +76,17 @@ CREATE TABLE IF NOT EXISTS profiles (
   email       TEXT        NOT NULL,
   avatar_url  TEXT,
   created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Reservations
+CREATE TABLE IF NOT EXISTS reservations (
+  id              UUID        DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id         UUID        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  car_id          UUID        NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
+  fee             DECIMAL(10,2) NOT NULL,
+  status          TEXT        DEFAULT 'pending', -- 'pending' | 'paid' | 'completed' | 'cancelled'
+  payment_status  TEXT        DEFAULT 'unpaid',  -- 'unpaid' | 'paid'
+  created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Trigger to create profile on signup
@@ -152,6 +152,19 @@ ALTER TABLE reviews      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reservations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE chats        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages     ENABLE ROW LEVEL SECURITY;
+
+-- Reservations: users can view and insert their own, admins full access
+DROP POLICY IF EXISTS "Users can view own reservations" ON reservations;
+CREATE POLICY "Users can view own reservations"
+  ON reservations FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can insert own reservations" ON reservations;
+CREATE POLICY "Users can insert own reservations"
+  ON reservations FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admins can manage all reservations" ON reservations;
+CREATE POLICY "Admins can manage all reservations"
+  ON reservations FOR ALL USING (auth.role() = 'service_role');
 
 -- Cars: public read, service role full access
 DROP POLICY IF EXISTS "Public read cars" ON cars;

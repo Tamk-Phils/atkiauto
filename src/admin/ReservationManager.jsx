@@ -13,12 +13,12 @@ const ReservationManager = () => {
   const [newCount, setNewCount] = useState(0)
 
   const fetchReservations = async () => {
-    const { data } = await supabase
+    const { data } = await adminSupabase
       .from('reservations')
       .select(`
         *,
         cars (make, model, year, price),
-        profiles (full_name, email)
+        profiles!user_id (full_name, email)
       `)
       .order('created_at', { ascending: false })
     
