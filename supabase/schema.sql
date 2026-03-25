@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS leads (
   status      TEXT        DEFAULT 'new',     -- 'new' | 'responded'
   car_id      UUID        REFERENCES cars(id) ON DELETE SET NULL,
   down_payment DECIMAL(10,2) DEFAULT 0.00,
+  data        JSONB       DEFAULT '{}'::jsonb,
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
