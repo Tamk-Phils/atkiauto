@@ -57,8 +57,8 @@ async function handleRequest(req: Request): Promise<Response> {
       'Authorization': `Bearer ${resendApiKey}`,
     },
     body: JSON.stringify({
-      from: 'Attkisson Autos <notifications@resend.dev>', // You can use this free domain for now
-      to: [notificationEmail],
+      from: 'onboarding@resend.dev', // GURANTEED to work even without domain verification
+      to: notificationEmail, // Resend free tier ONLY allows sending to your own email
       reply_to: email || notificationEmail,
       subject: `[LEAD] ${type || 'Notification'} - ${name || 'Inquiry'}`,
       html: `
