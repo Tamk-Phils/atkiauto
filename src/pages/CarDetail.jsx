@@ -276,7 +276,7 @@ const CarDetail = () => {
                   </div>
 
                   <p className="text-[10px] font-bold text-slate-400 mb-8 leading-relaxed italic uppercase tracking-widest bg-slate-100 py-3 rounded-xl">
-                    Contact our team via live chat to finalize payment
+                    Contact our team via live chat or email to finalize payment
                   </p>
 
                   {/* Actions */}
