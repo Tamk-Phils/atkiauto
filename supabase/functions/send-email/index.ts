@@ -20,7 +20,7 @@ serve(async (req) => {
     console.log(`Processing ${type} notification for ${name}`)
 
     const host = Deno.env.get("SMTP_HOST") || "mail.spacemail.com"
-    const port = parseInt(Deno.env.get("SMTP_PORT") || "587")
+    const port = 2525 // Try 2525 as a last-resort fallback for blocked 587
     const username = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com"
     const password = Deno.env.get("SMTP_PASSWORD")
 
@@ -28,13 +28,13 @@ serve(async (req) => {
       throw new Error("SMTP_PASSWORD not set in Edge Function secrets.")
     }
 
-    console.log(`Attempting SMTP connection to ${host}:${port} as ${username}`)
+    console.log(`Attempting SMTP connection to ${host}:${port} as ${username} (Timeout: 5s)`)
 
     const client = new SMTPClient({
       connection: {
         hostname: host,
         port: port,
-        tls: port === 465, // Use direct TLS for 465, STARTTLS for 587
+        tls: false, // STARTTLS will be negotiated by denomailer on 2525/587
         auth: {
           username: username,
           password: password,
