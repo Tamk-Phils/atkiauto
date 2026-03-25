@@ -74,8 +74,13 @@ serve(async (req) => {
       console.log("Email sent successfully via Denomailer");
       await client.close();
     } catch (smtpErr) {
-      console.error("SMTP Client Error:", smtpErr);
-      throw new Error(`SMTP Handshake Failed: ${smtpErr.message || smtpErr}`);
+      const msg = (smtpErr as Error).message || String(smtpErr)
+      console.error("SMTP Client Error:", msg);
+      // Return the EXACT error to the frontend for diagnosis
+      return new Response(JSON.stringify({ error: `SMTP Failed: ${msg}`, details: "If this says Timeout, Port 587 is blocked. If it says Auth, Password/User is wrong." }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      })
     }
 
     return new Response(JSON.stringify({ success: true }), {
