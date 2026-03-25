@@ -1,4 +1,4 @@
-// Automated Deployment Trigger - v3 (Final Build)
+// Automated Deployment Trigger - v4 (Port 587 Fix)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts"
 
@@ -21,34 +21,30 @@ serve(async (req) => {
 
     // SMTP Configuration from ENV
     const host = Deno.env.get("SMTP_HOST") || "mail.spacemail.com"
-    const port = parseInt(Deno.env.get("SMTP_PORT") || "465")
-    const username = Deno.env.get("SMTP_USERNAME") || "support@attkissonautos.com"
-    const password = Deno.env.get("SMTP_PASSWORD") || "Phl$7872"
+    const port = 587 // Explicitly use 587 for better compatibility
+    const username = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com"
+    const password = Deno.env.get("SMTP_PASSWORD")
+
+    if (!password) {
+      throw new Error("SMTP_PASSWORD not set in Edge Function secrets.")
+    }
 
     console.log(`Connecting to SMTP: ${host}:${port} as ${username}`)
 
     const client = new SmtpClient();
 
     try {
-      if (port === 465) {
-        await client.connectTLS({
-          hostname: host,
-          port: port,
-          username: username,
-          password: password,
-        });
-      } else {
-        await client.connect({
-          hostname: host,
-          port: port,
-          username: username,
-          password: password,
-        });
-      }
+      await client.connect({
+        hostname: host,
+        port: port,
+        username: username,
+        password: password,
+      });
+      console.log("SMTP Connection successful")
     } catch (connErr) {
       const message = (connErr as Error).message || String(connErr);
       console.error("SMTP Connection Error:", connErr)
-      throw new Error(`Failed to connect to mail server: ${message}`)
+      throw new Error(`Failed to connect to ${host}:${port}: ${message}`)
     }
 
     let subject = `[Attkisson Autos] New ${type || 'Notification'}`
