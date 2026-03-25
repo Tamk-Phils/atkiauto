@@ -206,7 +206,7 @@ const Hero = () => {
               alt="Quality Pre-owned Vehicles"
               style={{
                 width: isMobile ? '100%' : '120%',
-                maxWidth: isMobile ? '450px' : '700px',
+                maxWidth: isMobile ? '100%' : '700px',
                 height: 'auto',
                 display: 'block',
                 borderRadius: isMobile ? '0' : '1.5rem',

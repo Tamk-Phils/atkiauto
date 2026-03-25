@@ -24,11 +24,12 @@
 }
 
 /* Reset */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; max-width: 100%; }
 html, body {
   overflow-x: hidden;
   position: relative;
   width: 100%;
+  max-width: 100%;
 }
 html { scroll-behavior: smooth; }
 body {
@@ -62,6 +63,7 @@ img { max-width: 100%; display: block; }
   overflow-x: hidden;
   position: relative;
   width: 100%;
+  max-width: 100%;
 }
 
 main {
@@ -186,7 +188,7 @@ main {
 .w-7   { width: 1.75rem; }
 .w-40  { width: 10rem; }    .w-48   { width: 12rem; }
 .w-56  { width: 14rem; }    .w-64   { width: 16rem; }    .w-80   { width: 20rem; }
-.w-full { width: 100%; }    .w-screen { width: 100vw; }
+.w-full { width: 100%; }    .w-screen { width: 100%; }
 
 .h-0\.5 { height: 0.125rem; }
 .h-2   { height: 0.5rem; }  .h-2\.5 { height: 0.625rem; }

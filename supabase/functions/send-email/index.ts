@@ -29,7 +29,6 @@ serve(async (req) => {
 
     try {
       if (port === 465) {
-        // Port 465 requires SSL/TLS from the start
         await client.connectTLS({
           hostname: host,
           port: port,
@@ -37,7 +36,6 @@ serve(async (req) => {
           password: password,
         });
       } else {
-        // Port 587 usually uses STARTTLS
         await client.connect({
           hostname: host,
           port: port,
@@ -45,7 +43,7 @@ serve(async (req) => {
           password: password,
         });
       }
-    } catch (connErr) {
+    } catch (connErr: any) {
       console.error("SMTP Connection Error:", connErr)
       throw new Error(`Failed to connect to mail server: ${connErr.message}`)
     }
@@ -126,6 +124,7 @@ serve(async (req) => {
     await client.send({
       from: username,
       to: username,
+      replyTo: email, // Enable direct reply to the customer
       subject: subject,
       content: htmlBody,
       html: htmlBody
@@ -139,7 +138,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Function Error:", error.message)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
