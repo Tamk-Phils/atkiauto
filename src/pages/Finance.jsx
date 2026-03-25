@@ -20,7 +20,7 @@ const labelStyle = {
 
 const Finance = () => {
   const [formData, setFormData] = useState({ 
-    name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '',
+    name: '', email: '', phone: '', income: '', message: '', car_id: '',
     dob: '', address: '', city: '', state: '', zip: '', duration_at_address: '', prev_address: '',
     dl_number: '', dl_state: '', dl_expiry: '',
     ref_name: '', ref_phone: '', ref_relationship: '',
@@ -49,7 +49,7 @@ const Finance = () => {
   const handleCarChange = (id) => {
     const car = cars.find(c => c.id === id)
     setSelectedCar(car)
-    setFormData({ ...formData, car_id: id, down_payment: car?.down_payment || '' })
+    setFormData({ ...formData, car_id: id })
   }
 
   const handleSubmit = async (e) => {
@@ -73,7 +73,6 @@ const Finance = () => {
       message, 
       car_id: car_id || null, 
       type: 'finance',
-      down_payment: parseFloat(down_payment || 0),
       data: additionalData
     }])
     if (error) { 
@@ -82,7 +81,7 @@ const Finance = () => {
     } else {
       setStatus('success')
       setFormData({ 
-        name: '', email: '', phone: '', income: '', message: '', car_id: '', down_payment: '',
+        name: '', email: '', phone: '', income: '', message: '', car_id: '',
         dob: '', address: '', city: '', state: '', zip: '', duration_at_address: '', prev_address: '',
         dl_number: '', dl_state: '', dl_expiry: '',
         ref_name: '', ref_phone: '', ref_relationship: '',
@@ -381,26 +380,6 @@ const Finance = () => {
               {/* Financing Details */}
               <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem', marginTop: '1rem' }}>
                 <h3 style={{ fontSize: '0.75rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#64748b', marginBottom: '1.25rem' }}>Financing Details</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={labelStyle}>Down Payment (USD)</label>
-                    <div style={{ position: 'relative' }}>
-                      <DollarSign size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-                      <input required type="number" placeholder="0" style={{ ...inputStyle, paddingLeft: '2.25rem' }}
-                        value={formData.down_payment} onChange={e => setFormData({ ...formData, down_payment: e.target.value })} />
-                    </div>
-                    {selectedCar && (
-                      <p style={{ fontSize: '0.65rem', color: '#ef4444', fontWeight: 700, marginTop: '0.5rem', textTransform: 'uppercase' }}>
-                        Required Min: ${selectedCar.reservation_fee}
-                      </p>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b', fontStyle: 'italic', marginBottom: '0.5rem' }}>
-                      * Higher down payments improve approval odds.
-                    </p>
-                  </div>
-                </div>
 
                 <div>
                   <label style={labelStyle}>Additional Information (Optional)</label>
