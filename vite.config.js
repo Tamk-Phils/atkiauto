@@ -9,6 +9,7 @@ export default defineConfig({
       '/supabase': {
         target: 'https://baljrasbrqtkpxvmwvkx.supabase.co',
         changeOrigin: true,
+        ws: true,
         rewrite: (path) => path.replace(/^\/supabase/, ''),
       },
     },
