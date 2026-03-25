@@ -29,7 +29,9 @@ export async function POST(request) {
       { 
         success: false, 
         error: 'SMTP Authentication or Connection Failed',
-        details: error.message 
+        details: error.message,
+        code: error.code,
+        response: error.response
       },
       { status: 500 }
     );
