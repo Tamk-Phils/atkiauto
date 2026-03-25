@@ -47,14 +47,14 @@ serve(async (req) => {
         from: username,
         to: username,
         replyTo: email || username,
-        subject: `[Attkisson Autos] New ${type || 'Inquiry'}`,
-        content: "Please view the HTML version of this message.",
+        subject: `[LEAD] ${type || 'Notification'} - ${name || 'Inquiry'}`,
+        content: `New ${type} received from ${name}. Email: ${email}, Phone: ${phone}. Msg: ${message || 'No message'}`,
         html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: #fff;">
             <div style="background: #ef4444; color: white; padding: 20px; text-align: center;">
-              <h2 style="margin: 0;">New ${type || 'Notification'}</h2>
+              <h2 style="margin: 0;">New ${type || 'Inquiry'}</h2>
             </div>
-            <div style="padding: 20px;">
+            <div style="padding: 20px; color: #333;">
               <p><strong>Name:</strong> ${name || 'N/A'}</p>
               <p><strong>Email:</strong> ${email || 'N/A'}</p>
               <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
@@ -62,10 +62,10 @@ serve(async (req) => {
               ${car_name ? `<p><strong>Vehicle:</strong> ${car_name}</p>` : ''}
               ${income ? `<p><strong>Income:</strong> $${income}</p>` : ''}
               ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
-              ${details ? `<p style="font-size: 10px; color: #999;"><strong>System Info:</strong> ${details}</p>` : ''}
+              ${details ? `<p style="font-size: 10px; color: #999;"><strong>Ref:</strong> ${details}</p>` : ''}
             </div>
             <div style="background: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #666;">
-              Sent via Attkisson Autos Portal (Direct SMTP)
+              Attkisson Autos Notification System
             </div>
           </div>
         `,
@@ -77,7 +77,7 @@ serve(async (req) => {
       const msg = (smtpErr as Error).message || String(smtpErr)
       console.error("SMTP Client Error:", msg);
       // Return the EXACT error to the frontend for diagnosis
-      return new Response(JSON.stringify({ error: `SMTP Failed: ${msg}`, details: "If this says Timeout, Port 587 is blocked. If it says Auth, Password/User is wrong." }), {
+      return new Response(JSON.stringify({ error: `SMTP Failed: ${msg}`, details: "If successful in code but blank in inbox, check SPAM folder." }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
       })
