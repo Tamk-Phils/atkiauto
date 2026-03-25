@@ -1,32 +1,22 @@
-import emailjs from '@emailjs/browser';
-
-// Constants from environment variables
-const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_space_mail';
-const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+import { supabase } from './supabase';
 
 /**
- * Sends an email notification to the admin.
- * @param {Object} templateParams - The parameters for the email template.
- * @param {string} templateId - The EmailJS template ID.
+ * Sends an email notification via Supabase Edge Function.
+ * @param {Object} payload - The email data.
  */
-export const sendEmailNotification = async (templateParams, templateId) => {
-  if (!SERVICE_ID || !templateId || !PUBLIC_KEY) {
-    console.warn('Email notification skipped: Missing EmailJS configuration.');
-    return;
-  }
-
+export const sendEmailNotification = async (payload) => {
   try {
-    const response = await emailjs.send(
-      SERVICE_ID,
-      templateId,
-      templateParams,
-      PUBLIC_KEY
-    );
-    console.log('Email notification sent successfully:', response.status, response.text);
-    return response;
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: payload,
+    });
+
+    if (error) throw error;
+    console.log('Edge Function notification sent:', data);
+    return data;
   } catch (error) {
-    console.error('Failed to send email notification:', error);
-    throw error;
+    console.error('Failed to send email via Edge Function:', error);
+    // Suppress error in UI but log it
+    return null;
   }
 };
 
@@ -34,42 +24,40 @@ export const sendEmailNotification = async (templateParams, templateId) => {
  * Helper to send a new lead notification.
  */
 export const notifyNewLead = (leadData) => {
-  const templateId = import.meta.env.VITE_EMAILJS_LEAD_TEMPLATE_ID;
   return sendEmailNotification({
-    from_name: leadData.name,
-    from_email: leadData.email,
+    type: 'Lead / Financing',
+    name: leadData.name,
+    email: leadData.email,
     phone: leadData.phone,
-    subject: leadData.subject || 'New Lead',
+    car_name: leadData.car_name,
+    income: leadData.income,
     message: leadData.message,
-    type: leadData.type || 'contact',
-    created_at: new Date().toLocaleString()
-  }, templateId);
+    details: leadData.additionalData ? JSON.stringify(leadData.additionalData, null, 2) : null
+  });
 };
 
 /**
  * Helper to send a new reservation notification.
  */
 export const notifyNewReservation = (reservationData) => {
-  const templateId = import.meta.env.VITE_EMAILJS_RESERVATION_TEMPLATE_ID;
   return sendEmailNotification({
-    customer_name: reservationData.full_name,
-    customer_email: reservationData.email,
-    customer_phone: reservationData.phone,
+    type: 'Vehicle Reservation',
+    name: reservationData.full_name,
+    email: reservationData.email,
+    phone: reservationData.phone,
     car_name: reservationData.car_name,
-    reservation_date: reservationData.reservation_date,
-    created_at: new Date().toLocaleString()
-  }, templateId);
+    message: `Reservation placed on ${reservationData.reservation_date}`
+  });
 };
 
 /**
  * Helper to send a new chat notification.
  */
 export const notifyNewChat = (chatData) => {
-  const templateId = import.meta.env.VITE_EMAILJS_CHAT_TEMPLATE_ID;
   return sendEmailNotification({
-    customer_name: chatData.name || 'Anonymous Guest',
-    chat_id: chatData.id,
+    type: 'New Support Chat',
+    name: chatData.name || 'Anonymous Guest',
     message: chatData.message,
-    created_at: new Date().toLocaleString()
-  }, templateId);
+    details: `Chat ID: ${chatData.id}`
+  });
 };

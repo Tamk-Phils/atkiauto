@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { DollarSign, PieChart, TrendingUp, ShieldCheck, Send, Search, ChevronDown, Check } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { notifyNewLead } from '../lib/emailService'
-import emailjs from '@emailjs/browser'
 
 const inputStyle = {
   width: '100%', padding: '0.875rem 1rem',
