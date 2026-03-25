@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { DollarSign, PieChart, TrendingUp, ShieldCheck, Send } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { DollarSign, PieChart, TrendingUp, ShieldCheck, Send, Search, ChevronDown, Check } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import emailjs from '@emailjs/browser'
 
 const inputStyle = {
   width: '100%', padding: '0.875rem 1rem',
@@ -28,6 +29,8 @@ const Finance = () => {
   const [cars, setCars] = useState([])
   const [selectedCar, setSelectedCar] = useState(null)
   const [status, setStatus] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024)
 
   React.useEffect(() => {
@@ -86,6 +89,27 @@ const Finance = () => {
         authorized: false
       })
       setSelectedCar(null)
+      
+      // Email Notification to Admin
+      try {
+        await emailjs.send(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_xxx',
+          import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_xxx',
+          {
+            from_name: name,
+            from_email: email,
+            from_phone: phone,
+            income: income,
+            car_name: selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : 'Generic Inquiry',
+            message: message,
+            type: 'Financing Application',
+            details: JSON.stringify(additionalData, null, 2)
+          },
+          import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_xxx'
+        )
+      } catch (err) {
+        console.error('Email notification failed:', err)
+      }
     }
   }
 
@@ -156,12 +180,81 @@ const Finance = () => {
               
               <div>
                 <label style={labelStyle}>Select Vehicle (Optional)</label>
-                <select style={inputStyle} value={formData.car_id} onChange={e => handleCarChange(e.target.value)}>
-                  <option value="">Choose a car...</option>
-                  {cars.map(car => (
-                    <option key={car.id} value={car.id}>{car.year} {car.make} {car.model}</option>
-                  ))}
-                </select>
+                <div style={{ position: 'relative' }}>
+                  <div 
+                    onClick={() => setIsOpen(!isOpen)}
+                    style={{ ...inputStyle, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
+                    <span style={{ color: selectedCar ? '#0f172a' : '#94a3b8' }}>
+                      {selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : 'Search or choose a car...'}
+                    </span>
+                    <ChevronDown size={18} style={{ color: '#94a3b8' }} />
+                  </div>
+
+                  <AnimatePresence>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        style={{
+                          position: 'absolute', top: '105%', left: 0, right: 0,
+                          background: '#fff', border: '1.5px solid #e2e8f0',
+                          borderRadius: '0.625rem', zIndex: 50,
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                          maxHeight: '280px', overflowY: 'auto', padding: '0.5rem'
+                        }}
+                      >
+                        <div style={{ position: 'relative', marginBottom: '0.5rem' }}>
+                          <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                          <input 
+                            type="text" 
+                            placeholder="Type to filter..."
+                            style={{ ...inputStyle, padding: '0.5rem 0.75rem 0.5rem 2.25rem', fontSize: '0.8rem' }}
+                            value={searchTerm}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            autoFocus
+                          />
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div 
+                            onClick={() => { handleCarChange(null); setIsOpen(false); setSearchTerm(''); }}
+                            style={{ 
+                              padding: '0.75rem', borderRadius: '0.375rem', cursor: 'pointer',
+                              fontSize: '0.875rem', color: '#64748b', transition: 'background 0.2s',
+                              background: !selectedCar ? '#f1f5f9' : 'transparent'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = !selectedCar ? '#f1f5f9' : 'transparent'}
+                          >
+                            No specific vehicle
+                          </div>
+                          {cars.filter(car => 
+                            `${car.year} ${car.make} ${car.model}`.toLowerCase().includes(searchTerm.toLowerCase())
+                          ).map(car => (
+                            <div 
+                              key={car.id}
+                              onClick={() => { handleCarChange(car.id); setIsOpen(false); setSearchTerm(''); }}
+                              style={{ 
+                                padding: '0.75rem', borderRadius: '0.375rem', cursor: 'pointer',
+                                fontSize: '0.875rem', color: '#0f172a', transition: 'background 0.2s',
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                background: selectedCar?.id === car.id ? '#f1f5f9' : 'transparent'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = selectedCar?.id === car.id ? '#f1f5f9' : 'transparent'}
+                            >
+                              <span>{car.year} {car.make} {car.model}</span>
+                              {selectedCar?.id === car.id && <Check size={14} className="text-primary" />}
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* 1. Personal Information */}
