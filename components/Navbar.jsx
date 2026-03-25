@@ -1,16 +1,20 @@
+"use client"
 import React, { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Search, Menu, X } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  const [isMobile, setIsMobile] = useState(false)
   const [user, setUser] = useState(null)
-  const location = useLocation()
+  const pathname = usePathname()
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768)
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
@@ -37,7 +41,7 @@ const Navbar = () => {
     }
   }, [])
 
-  if (location.pathname.startsWith('/admin')) return null
+  if (pathname?.startsWith('/admin')) return null
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -62,7 +66,7 @@ const Navbar = () => {
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '1rem', paddingBottom: '1rem' }}>
 
         {/* Logo */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
           <div style={{
             width: 36, height: 36,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -80,7 +84,7 @@ const Navbar = () => {
             <ul style={{ display: 'flex', gap: '2.5rem', listStyle: 'none', margin: 0, padding: 0 }}>
               {navLinks.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.path} style={{
+                  <Link href={link.path} style={{
                     color: 'rgba(255,255,255,0.7)',
                     fontSize: '0.75rem',
                     fontWeight: 700,
@@ -89,8 +93,6 @@ const Navbar = () => {
                     textDecoration: 'none',
                     transition: 'color 0.2s',
                   }}
-                  onMouseEnter={e => e.target.style.color = '#fff'}
-                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.7)'}
                   >
                     {link.name}
                   </Link>
@@ -108,7 +110,7 @@ const Navbar = () => {
             </button>
             
             {user ? (
-              <Link to="/dashboard" style={{
+              <Link href="/dashboard" style={{
                 background: 'rgba(255,255,255,0.05)',
                 color: '#fff',
                 border: '1px solid rgba(255,255,255,0.1)',
@@ -124,7 +126,7 @@ const Navbar = () => {
                 Dashboard
               </Link>
             ) : (
-              <Link to="/auth" style={{
+              <Link href="/auth" style={{
                 background: '#fff',
                 color: '#0a0a0b',
                 padding: '0.6rem 1.25rem',
@@ -163,7 +165,7 @@ const Navbar = () => {
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {navLinks.map((link) => (
               <li key={link.name}>
-                <Link to={link.path}
+                <Link href={link.path}
                   style={{ color: '#fff', fontSize: '1.125rem', fontWeight: 700, textDecoration: 'none' }}
                   onClick={() => setIsMobileMenuOpen(false)}>
                   {link.name}
@@ -171,7 +173,7 @@ const Navbar = () => {
               </li>
             ))}
             <li style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <Link to={user ? "/dashboard" : "/auth"}
+              <Link href={user ? "/dashboard" : "/auth"}
                 style={{ color: '#ef4444', fontSize: '1.125rem', fontWeight: 900, textDecoration: 'none', textTransform: 'uppercase' }}
                 onClick={() => setIsMobileMenuOpen(false)}>
                 {user ? "My Dashboard" : "Sign In"}

@@ -1,14 +1,16 @@
+"use client"
 import React, { useState, useEffect } from 'react'
 import { motion, animate } from 'framer-motion'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
 /* ── No longer using Orb or TiltCard for a cleaner look ── */
 
 const Hero = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -131,7 +133,7 @@ const Hero = () => {
               flexWrap: 'wrap',
               justifyContent: isMobile ? 'center' : 'flex-start'
             }}>
-              <Link to="/inventory" style={{
+              <Link href="/inventory" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
                 background: '#ef4444', color: '#fff',
                 padding: '1rem 2rem', borderRadius: '0.75rem',
@@ -144,7 +146,7 @@ const Hero = () => {
                 <ArrowRight size={16} />
               </Link>
 
-              <Link to="/about" style={{
+              <Link href="/about" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
                 background: 'rgba(255,255,255,0.1)',
                 border: '1px solid rgba(255,255,255,0.2)',

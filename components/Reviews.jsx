@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Star, Quote } from 'lucide-react'
@@ -56,9 +57,10 @@ const reviews = [
 ]
 
 const Reviews = () => {
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);

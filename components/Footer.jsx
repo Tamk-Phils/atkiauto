@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { Mail, Package } from 'lucide-react'
 
 const Footer = () => {
@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 lg:gap-16 mb-20 lg:mb-24">
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-            <Link to="/" className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3">
               <div className="w-12 h-12 flex items-center justify-center">
                 <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
               </div>
@@ -24,10 +24,10 @@ const Footer = () => {
           <div>
             <h4 className="font-black text-sm uppercase tracking-[0.2em] mb-10 text-primary">Showroom</h4>
             <ul className="space-y-6">
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Full Inventory</Link></li>
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">New Arrivals</Link></li>
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Family SUVs</Link></li>
-              <li><Link to="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Daily Drivers</Link></li>
+              <li><Link href="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Full Inventory</Link></li>
+              <li><Link href="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">New Arrivals</Link></li>
+              <li><Link href="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Family SUVs</Link></li>
+              <li><Link href="/inventory" className="text-white/60 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest">Daily Drivers</Link></li>
             </ul>
           </div>
 

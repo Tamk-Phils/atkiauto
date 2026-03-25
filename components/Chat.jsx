@@ -1,18 +1,23 @@
+"use client"
 import React, { useState, useEffect, useRef } from 'react'
 import { MessageCircle, X, Send, User, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { supabase } from '../lib/supabase'
-import { notifyNewChat } from '../lib/emailService'
+import { supabase } from '@/lib/supabase'
+import { notifyNewChat } from '@/lib/emailService'
 
 const Chat = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [messages, setMessages] = useState([])
-  const [chatId, setChatId] = useState(localStorage.getItem('attkisson_chat_id'))
+  const [chatId, setChatId] = useState(null)
   const [userId, setUserId] = useState(null)
   const scrollRef = useRef()
 
   useEffect(() => {
+    // Client-side initialization
+    const savedChatId = localStorage.getItem('attkisson_chat_id')
+    if (savedChatId) setChatId(savedChatId)
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserId(session?.user?.id || null)
     })
@@ -86,11 +91,23 @@ const Chat = () => {
         localStorage.setItem('attkisson_chat_id', currentChatId)
         
         // Notify admin of new chat
-        notifyNewChat({
+        const notifyData = {
           id: currentChatId,
           name: userId ? 'Authenticated User' : 'Guest Visitor',
           message: message
-        }).catch(err => console.error('Email notify failed:', err))
+        }
+
+        // Try to fetch user profile for better email info
+        if (userId) {
+          const { data: profile } = await supabase.from('profiles').select('full_name, email, phone').eq('id', userId).single()
+          if (profile) {
+            notifyData.name = profile.full_name || notifyData.name
+            notifyData.email = profile.email
+            notifyData.phone = profile.phone
+          }
+        }
+
+        notifyNewChat(notifyData).catch(err => console.error('Email notify failed:', err))
       } else {
         console.error('Failed to start chat:', error)
         return

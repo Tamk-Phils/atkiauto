@@ -1,15 +1,17 @@
-import React, { useRef } from 'react'
-import { Link } from 'react-router-dom'
+"use client"
+import React, { useRef, useState, useEffect } from 'react'
+import Link from 'next/link'
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion'
 import { ArrowRight, ImageIcon } from 'lucide-react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 // vehicles will be fetched from Supabase
 
 const Card3D = ({ car, i }) => {
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -69,8 +71,6 @@ const Card3D = ({ car, i }) => {
         boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
         transition: 'transform 0.3s, box-shadow 0.3s'
       }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)'; }}
       >
         {/* Image */}
         <div style={{ position: 'relative', height: 200, overflow: 'hidden', background: '#f8fafc' }}>
@@ -111,7 +111,7 @@ const Card3D = ({ car, i }) => {
           <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0a0a0b', letterSpacing: '-0.01em', marginBottom: '0.75rem' }}>{car.make} {car.model}</h3>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.875rem', borderTop: '1px solid #f1f5f9' }}>
             <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0a0a0b', letterSpacing: '-0.02em' }}>${parseInt(car.price || 0).toLocaleString()}</span>
-            <Link to={`/inventory/${car.id}`} style={{
+            <Link href={`/inventory/${car.id}`} style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
               fontSize: '0.65rem', fontWeight: 800, color: '#ef4444',
               textTransform: 'uppercase', letterSpacing: '0.1em', textDecoration: 'none',
@@ -126,7 +126,7 @@ const Card3D = ({ car, i }) => {
 }
 
 const MobileCard = ({ car }) => (
-  <Link to={`/inventory/${car.id}`} className="block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+  <Link href={`/inventory/${car.id}`} className="block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
     <div className="aspect-[16/10] bg-slate-100 overflow-hidden">
       <img src={car.images?.[0] || car.image_url} alt="" className="w-full h-full object-cover" />
     </div>
@@ -144,11 +144,11 @@ const MobileCard = ({ car }) => (
 )
 
 const FeaturedCars = () => {
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
-  const [vehicles, setVehicles] = React.useState([])
-  const [loading, setLoading] = React.useState(true)
+  const [isMobile, setIsMobile] = useState(false);
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchVehicles = async () => {
       const { data } = await supabase
         .from('cars')
@@ -162,6 +162,7 @@ const FeaturedCars = () => {
 
     fetchVehicles()
 
+    setIsMobile(window.innerWidth < 1024);
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -197,7 +198,7 @@ const FeaturedCars = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <Link to="/inventory" style={{
+            <Link href="/inventory" style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
               padding: '0.625rem 1.25rem',
               border: '1.5px solid #e2e8f0', borderRadius: '0.5rem',
