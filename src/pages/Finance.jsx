@@ -100,21 +100,16 @@ const Finance = () => {
       
       // Email Notification to Admin
       try {
-        await emailjs.send(
-          import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_xxx',
-          import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_xxx',
-          {
-            from_name: name,
-            from_email: email,
-            from_phone: phone,
-            income: income,
-            car_name: selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : 'Generic Inquiry',
-            message: message,
-            type: 'Financing Application',
-            details: JSON.stringify(additionalData, null, 2)
-          },
-          import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'public_xxx'
-        )
+        await notifyNewLead({
+          name,
+          email,
+          phone,
+          income,
+          car_name: selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : 'Generic Inquiry',
+          message: message,
+          type: 'Financing Application',
+          additionalData: additionalData
+        })
       } catch (err) {
         console.error('Email notification failed:', err)
       }

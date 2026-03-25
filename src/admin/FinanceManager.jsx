@@ -29,7 +29,7 @@ const FinanceManager = () => {
   }, [])
 
   const fetchLeads = async () => {
-    const { data } = await supabase
+    const { data } = await adminSupabase
       .from('leads')
       .select('*, cars(make, model, year)')
       .eq('type', 'finance')
