@@ -65,7 +65,7 @@ const Finance = () => {
       ...additionalData 
     } = formData
 
-    const { error } = await supabase.from('leads').insert([{ 
+    let { error } = await supabase.from('leads').insert([{ 
       name, 
       email, 
       phone, 
@@ -75,6 +75,15 @@ const Finance = () => {
       type: 'finance',
       data: additionalData
     }])
+
+    if (error && error.code === 'PGRST204') {
+      // Fallback: Combine data into message if 'data' column is missing
+      const combinedMessage = `[FINANCING DETAILS]\n${Object.entries(additionalData).map(([k, v]) => `${k.toUpperCase()}: ${v}`).join('\n')}\n\n[USER MESSAGE]\n${message}`
+      const fallbackResponse = await supabase.from('leads').insert([{ 
+        name, email, phone, income, message: combinedMessage, car_id: car_id || null, type: 'finance'
+      }])
+      error = fallbackResponse.error
+    }
     if (error) { 
       console.error(error)
       setStatus('error') 
