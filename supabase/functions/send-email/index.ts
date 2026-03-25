@@ -20,7 +20,7 @@ serve(async (req) => {
     console.log(`Processing ${type} notification for ${name}`)
 
     const host = Deno.env.get("SMTP_HOST") || "mail.spacemail.com"
-    const port = 2525 // Try 2525 as a last-resort fallback for blocked 587
+    const port = parseInt(Deno.env.get("SMTP_PORT") || "587")
     const username = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com"
     const password = Deno.env.get("SMTP_PASSWORD")
 
