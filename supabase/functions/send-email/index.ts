@@ -45,9 +45,10 @@ serve(async (req) => {
           password: password,
         });
       }
-    } catch (connErr: any) {
+    } catch (connErr) {
+      const message = (connErr as Error).message || String(connErr);
       console.error("SMTP Connection Error:", connErr)
-      throw new Error(`Failed to connect to mail server: ${connErr.message}`)
+      throw new Error(`Failed to connect to mail server: ${message}`)
     }
 
     let subject = `[Attkisson Autos] New ${type || 'Notification'}`
@@ -140,7 +141,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     })
-  } catch (error: any) {
+  } catch (err) {
+    const error = err as Error;
     console.error("Function Error:", error.message)
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
