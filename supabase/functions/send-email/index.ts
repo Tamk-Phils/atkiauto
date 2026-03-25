@@ -41,36 +41,26 @@ async function handleRequest(req: Request): Promise<Response> {
   const { type, name, email, phone, message, car_name, income, details } = payload;
   console.log(`Processing ${type} notification for ${name}`);
 
-  const host = Deno.env.get("SMTP_HOST") || "mail.spacemail.com";
-  const port = parseInt(Deno.env.get("SMTP_PORT") || "587");
-  const username = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com";
-  const password = Deno.env.get("SMTP_PASSWORD");
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  const notificationEmail = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com";
 
-  if (!password) {
-    throw new Error("SMTP_PASSWORD not set in Edge Function secrets.");
+  if (!resendApiKey) {
+    throw new Error("RESEND_API_KEY not set. Please get a free key from resend.com");
   }
 
-  console.log(`Connecting to SMTP: ${host}:${port} as ${username}`);
+  console.log(`Sending via Resend API to ${notificationEmail}`);
 
-  const client = new SMTPClient({
-    connection: {
-      hostname: host,
-      port: port,
-      tls: false, // Port 587/2525 use STARTTLS
-      auth: {
-        username: username,
-        password: password,
-      },
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${resendApiKey}`,
     },
-  });
-
-  try {
-    await client.send({
-      from: username,
-      to: username,
-      replyTo: email || username,
+    body: JSON.stringify({
+      from: 'Attkisson Autos <notifications@resend.dev>', // You can use this free domain for now
+      to: [notificationEmail],
+      reply_to: email || notificationEmail,
       subject: `[LEAD] ${type || 'Notification'} - ${name || 'Inquiry'}`,
-      content: `New ${type} received from ${name}. Email: ${email}, Phone: ${phone}. Msg: ${message || 'No message'}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden; background: #fff;">
           <div style="background: #ef4444; color: white; padding: 20px; text-align: center;">
@@ -87,28 +77,22 @@ async function handleRequest(req: Request): Promise<Response> {
             ${details ? `<p style="font-size: 10px; color: #999;"><strong>Ref:</strong> ${details}</p>` : ''}
           </div>
           <div style="background: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #666;">
-            Attkisson Autos Notification System
+            Attkisson Autos Notification System (Powered by Resend)
           </div>
         </div>
       `,
-    });
-    
-    console.log("Email sent successfully!");
-    await client.close();
-    
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-  } catch (smtpErr) {
-    const msg = (smtpErr as Error).message || String(smtpErr);
-    console.error("SMTP Error:", msg);
-    return new Response(JSON.stringify({ 
-      error: `SMTP Failed: ${msg}`, 
-      details: "If this says Timeout, check Port 587. If Auth, check password." 
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
+    }),
+  });
+
+  const resData = await res.json();
+  if (!res.ok) {
+    throw new Error(`Resend Error: ${resData.message || JSON.stringify(resData)}`);
   }
+
+  console.log("Email sent successfully via Resend!");
+  
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    status: 200,
+  });
 }
