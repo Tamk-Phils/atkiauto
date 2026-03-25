@@ -16,6 +16,7 @@ import ChatManager from './admin/ChatManager'
 import AdminLogin from './admin/AdminLogin'
 import UserManager from './admin/UserManager'
 import ReservationManager from './admin/ReservationManager'
+import FinanceManager from './admin/FinanceManager'
 import ProtectedRoute from './admin/ProtectedRoute'
 import Auth from './pages/Auth'
 import UserDashboard from './pages/UserDashboard'
@@ -51,6 +52,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="inventory" element={<InventoryManager />} />
               <Route path="leads" element={<LeadManager />} />
+              <Route path="finance" element={<FinanceManager />} />
               <Route path="appointments" element={<AppointmentManager />} />
               <Route path="chats" element={<ChatManager />} />
               <Route path="users" element={<UserManager />} />

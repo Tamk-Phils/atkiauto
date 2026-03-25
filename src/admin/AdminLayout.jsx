@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Car, Users, Calendar, Settings, LogOut, Package, MessageSquare, X, Menu, Ticket, UserCircle2 } from 'lucide-react'
+import { LayoutDashboard, Car, Users, Calendar, Settings, LogOut, Package, MessageSquare, X, Menu, Ticket, UserCircle2, DollarSign } from 'lucide-react'
 import AdminNotifier from './AdminNotifier'
 
 const AdminLayout = () => {
@@ -26,6 +26,7 @@ const AdminLayout = () => {
     { icon: <Users size={18} />, label: 'Users', path: '/admin/users' },
     { icon: <MessageSquare size={18} />, label: 'Chats', path: '/admin/chats' },
     { icon: <UserCircle2 size={18} />, label: 'Leads', path: '/admin/leads' },
+    { icon: <DollarSign size={18} />, label: 'Finance', path: '/admin/finance' },
     { icon: <Ticket size={18} />, label: 'Reservations', path: '/admin/reservations' },
     { icon: <Calendar size={18} />, label: 'Appointments', path: '/admin/appointments' },
     { icon: <Settings size={18} />, label: 'Settings', path: '/admin/settings' },
