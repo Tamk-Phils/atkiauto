@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Phone, MapPin, Send, Instagram, Twitter, Facebook } from 'lucide-react'
+import { Mail, Send } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { notifyNewLead } from '../lib/emailService'
 
@@ -42,8 +42,7 @@ const Contact = () => {
   }
 
   const contactInfo = [
-    { icon: <Mail size={20} />, label: 'Email Us', value: 'sales@attkissonautos.com' },
-    { icon: <Phone size={20} />, label: 'Call Us', value: '+1 (800) ATT-AUTO' },
+    { icon: <Mail size={20} />, label: 'Email Us', value: 'support@attkissonautos.com' },
   ]
 
   return (

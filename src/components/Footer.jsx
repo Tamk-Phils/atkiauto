@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Package } from 'lucide-react'
+import { Mail, Package } from 'lucide-react'
 
 const Footer = () => {
   return (
@@ -19,13 +19,6 @@ const Footer = () => {
             <p className="text-white/50 text-lg leading-relaxed max-w-md font-medium">
               The premier destination for quality used vehicles since 1996. We don't just sell cars; we deliver reliability and trust to our community.
             </p>
-            <div className="flex gap-6">
-              {[Facebook, Instagram, Twitter].map((Icon, i) => (
-                <a key={i} href="#" className="w-12 h-12 rounded-xl border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-all group">
-                  <Icon size={22} className="text-white/60 group-hover:text-white" />
-                </a>
-              ))}
-            </div>
           </div>
 
           <div>
