@@ -1,4 +1,4 @@
-// Automated Deployment Trigger - v2 (YAML Fixed)
+// Automated Deployment Trigger - v3 (Final Build)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts"
 
