@@ -87,23 +87,6 @@ const Contact = () => {
                 </div>
               ))}
             </div>
-
-            {/* Social Links */}
-            <div style={{ display: 'flex', gap: '0.875rem' }}>
-              {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                <a key={i} href="#" style={{
-                  width: 44, height: 44, borderRadius: '0.625rem',
-                  border: '1.5px solid #e2e8f0', background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#64748b', textDecoration: 'none', transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#ef4444'; e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
-                >
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Right: Form */}
