@@ -1,4 +1,4 @@
-// Automated Deployment Trigger - v4 (Port 587 Fix)
+// Automated Deployment Trigger - v5 (Final SMTP Shake)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts"
 
@@ -21,7 +21,7 @@ serve(async (req) => {
 
     // SMTP Configuration from ENV
     const host = Deno.env.get("SMTP_HOST") || "mail.spacemail.com"
-    const port = 587 // Explicitly use 587 for better compatibility
+    const port = 587
     const username = Deno.env.get("SMTP_USERNAME") || "adminsupport@eliesbichon.com"
     const password = Deno.env.get("SMTP_PASSWORD")
 
@@ -31,9 +31,11 @@ serve(async (req) => {
 
     console.log(`Connecting to SMTP: ${host}:${port} as ${username}`)
 
+    // Initialize SMTP Client with more robust settings
     const client = new SmtpClient();
 
     try {
+      // Use standard connect for STARTTLS on 587
       await client.connect({
         hostname: host,
         port: port,
@@ -43,7 +45,7 @@ serve(async (req) => {
       console.log("SMTP Connection successful")
     } catch (connErr) {
       const message = (connErr as Error).message || String(connErr);
-      console.error("SMTP Connection Error:", connErr)
+      console.error("SMTP Connection Error Details:", connErr)
       throw new Error(`Failed to connect to ${host}:${port}: ${message}`)
     }
 
