@@ -26,6 +26,7 @@ const DashboardCard = ({ title, icon: Icon, children }) => (
 
 const UserDashboardPage = () => {
   const [user, setUser] = useState(null)
+  const [reservations, setReservations] = useState([])
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState([])
