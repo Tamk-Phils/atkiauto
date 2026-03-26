@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Lock, Mail, ArrowRight, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react'
 
+import { adminLoginAction } from './actions'
+
 const AdminLoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,14 +20,18 @@ const AdminLoginPage = () => {
     setLoading(true)
     setError(null)
 
-    const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL
-    const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD
-
-    if (email.trim().toLowerCase() === ADMIN_EMAIL?.trim().toLowerCase() && password.trim() === ADMIN_PASSWORD?.trim()) {
-      sessionStorage.setItem('admin_auth', 'true')
-      router.push('/admin')
-    } else {
-      setError('Invalid credentials. Check your environment configuration.')
+    try {
+      const result = await adminLoginAction(email, password)
+      
+      if (result.success) {
+        sessionStorage.setItem('admin_auth', 'true')
+        router.push('/admin')
+      } else {
+        setError(`${result.error}. (Expected ${result.debug.expectedLength}, got ${result.debug.receivedLength})`)
+        setLoading(false)
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.')
       setLoading(false)
     }
   }
