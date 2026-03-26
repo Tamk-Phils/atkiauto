@@ -47,14 +47,30 @@ const FinanceManagerPage = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
-    await adminSupabase.from('leads').update({ status }).eq('id', id)
-    fetchLeads()
+    // Optimistic update
+    const previousLeads = [...leads]
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l))
+
+    const { error } = await adminSupabase.from('leads').update({ status }).eq('id', id)
+    if (error) {
+      console.error('Update status failed:', error)
+      setLeads(previousLeads) // Rollback
+      alert('Failed to update status. Please try again.')
+    }
   }
 
   const deleteLead = async (id) => {
-    if (window.confirm('Are you sure you want to delete this application?')) {
-      await adminSupabase.from('leads').delete().eq('id', id)
-      fetchLeads()
+    if (!window.confirm('Are you sure you want to delete this application?')) return
+    
+    // Optimistic delete
+    const previousLeads = [...leads]
+    setLeads(prev => prev.filter(l => l.id !== id))
+
+    const { error } = await adminSupabase.from('leads').delete().eq('id', id)
+    if (error) {
+      console.error('Delete failed:', error)
+      setLeads(previousLeads) // Rollback
+      alert('Failed to delete lead. Please try again.')
     }
   }
 

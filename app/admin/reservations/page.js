@@ -46,12 +46,25 @@ const ReservationManagerPage = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
+    // Optimistic update
+    const previousReservations = [...reservations]
+    setReservations(prev => prev.map(r => r.id === id ? { ...r, status } : r))
+
     const { error } = await adminSupabase.from('reservations').update({ status }).eq('id', id)
-    if (!error) fetchReservations()
+    if (error) {
+      console.error('Update status failed:', error)
+      setReservations(previousReservations) // Rollback
+      alert('Failed to update status. Please try again.')
+    }
   }
 
   const deleteReservation = async (id) => {
     if (!confirm('Permanently delete this reservation?')) return
+    
+    // Optimistic delete
+    const previousReservations = [...reservations]
+    setReservations(prev => prev.filter(r => r.id !== id))
+
     try {
       const response = await fetch('/api/admin/delete', {
         method: 'POST',
@@ -59,9 +72,9 @@ const ReservationManagerPage = () => {
         body: JSON.stringify({ table: 'reservations', id })
       })
       if (!response.ok) throw new Error('Delete failed')
-      fetchReservations()
     } catch (error) {
       console.error('Delete error:', error)
+      setReservations(previousReservations) // Rollback
       alert(`Delete failed: ${error.message}`)
     }
   }

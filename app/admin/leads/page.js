@@ -49,11 +49,25 @@ const LeadManagerPage = () => {
   }, [])
 
   const updateStatus = async (id, status) => {
-    await adminSupabase.from('leads').update({ status }).eq('id', id)
+    // Optimistic update
+    const previousLeads = [...leads]
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l))
+
+    const { error } = await adminSupabase.from('leads').update({ status }).eq('id', id)
+    if (error) {
+      console.error('Update status failed:', error)
+      setLeads(previousLeads) // Rollback
+      alert('Failed to update status. Please try again.')
+    }
   }
 
   const deleteLead = async (id) => {
     if (!confirm('Delete this lead?')) return
+    
+    // Optimistic delete
+    const previousLeads = [...leads]
+    setLeads(prev => prev.filter(l => l.id !== id))
+
     try {
       const response = await fetch('/api/admin/delete', {
         method: 'POST',
@@ -61,9 +75,9 @@ const LeadManagerPage = () => {
         body: JSON.stringify({ table: 'leads', id })
       })
       if (!response.ok) throw new Error('Delete failed')
-      fetchLeads()
     } catch (error) {
       console.error('Delete error:', error)
+      setLeads(previousLeads) // Rollback
       alert(`Delete failed: ${error.message}`)
     }
   }

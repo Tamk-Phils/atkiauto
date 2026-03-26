@@ -1,7 +1,7 @@
 "use client"
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { User, Package, MessageSquare, LogOut, Calendar, Car } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { User, Package, MessageSquare, LogOut, Calendar, Car, TrendingUp, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -26,11 +26,14 @@ const DashboardCard = ({ title, icon: Icon, children }) => (
 
 const UserDashboardPage = () => {
   const [user, setUser] = useState(null)
-  const [reservations, setReservations] = useState([])
+  const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
+  const [notifications, setNotifications] = useState([])
   const router = useRouter()
 
   useEffect(() => {
+    let resChannel, leadsChannel
+
     const fetchUserAndData = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -42,19 +45,67 @@ const UserDashboardPage = () => {
       // Fetch reservations
       const { data: resData } = await supabase
         .from('reservations')
-        .select(`
-          *,
-          cars (*)
-        `)
+        .select(`*, cars (*)`)
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
       
       if (resData) setReservations(resData)
+
+      // Fetch Leads (Financing requests)
+      const { data: leadsData } = await supabase
+        .from('leads')
+        .select(`*, cars (*)`)
+        .eq('email', session.user.email)
+        .order('created_at', { ascending: false })
+      
+      if (leadsData) setLeads(leadsData)
       setLoading(false)
+
+      // Real-time for Reservations
+      resChannel = supabase.channel(`user-res-${session.user.id}`)
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'reservations',
+          filter: `user_id=eq.${session.user.id}`
+        }, (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            setReservations(prev => prev.map(r => r.id === payload.new.id ? { ...r, ...payload.new } : r))
+            addNotification(`Reservation for ${payload.new.id.split('-')[0]} updated: ${payload.new.status}`)
+          }
+        })
+        .subscribe()
+
+      // Real-time for Leads
+      leadsChannel = supabase.channel(`user-leads-${session.user.id}`)
+        .on('postgres_changes', { 
+          event: '*', 
+          schema: 'public', 
+          table: 'leads',
+          filter: `email=eq.${session.user.email}`
+        }, (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            setLeads(prev => prev.map(l => l.id === payload.new.id ? { ...l, ...payload.new } : l))
+            addNotification(`Financing request updated: ${payload.new.status}`)
+          }
+        })
+        .subscribe()
     }
 
     fetchUserAndData()
+    return () => {
+      if (resChannel) supabase.removeChannel(resChannel)
+      if (leadsChannel) supabase.removeChannel(leadsChannel)
+    }
   }, [router])
+
+  const addNotification = (message) => {
+    const id = Date.now()
+    setNotifications(prev => [{ id, message }, ...prev])
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }, 8000)
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -90,6 +141,18 @@ const UserDashboardPage = () => {
           >
             <LogOut size={16} /> Sign Out
           </button>
+        </div>
+
+        {/* Real-time Notifications */}
+        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <AnimatePresence>
+            {notifications.map(n => (
+              <motion.div key={n.id} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, scale: 0.95 }}
+                style={{ background: '#ef4444', color: '#fff', padding: '1rem 1.5rem', borderRadius: '1rem', fontWeight: 800, fontSize: '0.8rem', boxShadow: '0 10px 25px rgba(239,68,68,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {n.message}
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
@@ -129,13 +192,45 @@ const UserDashboardPage = () => {
                   <div key={res.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.06)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                       <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>{res.cars?.year} {res.cars?.make} {res.cars?.model}</h4>
-                      <span style={{ fontSize: '0.6rem', color: res.payment_status === 'paid' ? '#4ade80' : '#f59e0b', fontWeight: 800, textTransform: 'uppercase' }}>
-                        {res.payment_status}
+                      <span style={{ fontSize: '0.67rem', color: res.status === 'completed' ? '#4ade80' : res.status === 'paid' ? '#3b82f6' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {res.status || 'Pending'}
                       </span>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12} /> {new Date(res.created_at).toLocaleDateString()}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>Fee: ${res.fee}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{res.payment_status === 'paid' ? 'Paid' : 'Unpaid'}: ${res.fee}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </DashboardCard>
+
+          {/* Financing Section */}
+          <DashboardCard title="Financing Requests" icon={TrendingUp}>
+            {leads.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '2rem 0', color: 'rgba(255,255,255,0.3)' }}>
+                <TrendingUp size={32} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                <p style={{ fontSize: '0.875rem' }}>No financing data found.</p>
+                <button 
+                  onClick={() => router.push('/finance')}
+                  style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, marginTop: '1rem', cursor: 'pointer', fontSize: '0.8rem' }}
+                >
+                  Apply for Financing
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {leads.map(lead => (
+                  <div key={lead.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>{lead.cars?.make} Financing</h4>
+                      <span style={{ fontSize: '0.67rem', color: lead.status === 'responded' ? '#4ade80' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {lead.status === 'responded' ? 'Approved' : (lead.status || 'Under Review')}
+                      </span>
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12} /> Received: {new Date(lead.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 ))}
