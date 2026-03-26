@@ -109,15 +109,16 @@ const ReservationManagerPage = () => {
           </span>
         </div>
 
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full border-collapse min-w-[1000px]">
+        <div className="overflow-x-auto custom-scrollbar max-w-full" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', touchAction: 'pan-x' }}>
+          <table className="border-collapse table-fixed" style={{ width: '1200px', minWidth: '1200px' }}>
             <thead>
               <tr className="bg-slate-50/50">
-                {['Customer', 'Vehicle', 'Fee', 'Status', 'Date', 'Actions'].map(h => (
-                  <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">
-                    {h}
-                  </th>
-                ))}
+                <th className="w-[250px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Customer</th>
+                <th className="w-[250px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Vehicle</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Fee</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Status</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Date</th>
+                <th className="w-[150px] px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left border-b border-slate-100">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
