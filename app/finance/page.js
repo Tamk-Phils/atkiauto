@@ -67,15 +67,20 @@ const FinancePage = () => {
       ...additionalData 
     } = formData
 
+    const messageWithDetails = `[JSON]${JSON.stringify({
+      ...additionalData,
+      originalMessage: message
+    })}`
+
     let { error } = await supabase.from('leads').insert([{ 
       name, 
       email, 
       phone, 
       income, 
-      message, 
+      message: messageWithDetails, 
       car_id: car_id || null, 
-      type: 'finance',
-      details: additionalData
+      type: 'finance'
+      // removed non-existent 'details' column
     }])
 
     if (error) { 

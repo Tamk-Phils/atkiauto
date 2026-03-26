@@ -217,56 +217,77 @@ const LeadManagerPage = () => {
               </div>
               
               <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Down Payment</p>
-                    <p className="text-xl font-black text-primary">${parseFloat(selectedLead.down_payment || 0).toLocaleString()}</p>
-                  </div>
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Income</p>
-                    <p className="text-xl font-black text-slate-900">${parseFloat(selectedLead.income || 0).toLocaleString()}</p>
-                  </div>
-                </div>
+                {(() => {
+                  let displayData = selectedLead.data;
+                  let displayMessage = selectedLead.message;
+                  
+                  const isDataEmpty = !displayData || (typeof displayData === 'object' && Object.keys(displayData).length === 0);
+                  
+                  if (isDataEmpty && displayMessage?.startsWith('[JSON]')) {
+                    try {
+                      const jsonPart = displayMessage.substring(6);
+                      displayData = JSON.parse(jsonPart);
+                      displayMessage = displayData.originalMessage || '';
+                    } catch (e) {
+                      console.error('Failed to parse JSON message:', e);
+                    }
+                  }
 
-                {selectedLead.data ? (
-                  <>
-                    <div className="space-y-4">
-                      <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3 italic">Personal & Residence</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">DOB</p><p className="font-bold">{selectedLead.data.dob || 'N/A'}</p></div>
-                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p><p className="font-bold">{selectedLead.phone || 'N/A'}</p></div>
-                        <div className="sm:col-span-2 text-primary bg-primary/5 p-3 rounded-xl border border-primary/10">
-                          <p className="text-[10px] font-bold uppercase mb-1">Current Address</p>
-                          <p className="font-black leading-tight">
-                            {selectedLead.data.address}<br />
-                            {selectedLead.data.city}, {selectedLead.data.state} {selectedLead.data.zip}
-                          </p>
-                          <p className="mt-2 text-[10px] font-bold">Duration: {selectedLead.data.duration_at_address}</p>
+                  return (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Down Payment</p>
+                          <p className="text-xl font-black text-primary">${parseFloat(selectedLead.down_payment || displayData?.down_payment || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Income</p>
+                          <p className="text-xl font-black text-slate-900">${parseFloat(selectedLead.income || displayData?.income || 0).toLocaleString()}</p>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-4">
-                      <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3 italic">Identification</h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">DL Number</p><p className="font-bold">{selectedLead.data.dl_number}</p></div>
-                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">DL State</p><p className="font-bold">{selectedLead.data.dl_state}</p></div>
-                        <div><p className="text-[10px] font-bold text-slate-400 uppercase">Expiry</p><p className="font-bold">{selectedLead.data.dl_expiry}</p></div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="py-12 text-center text-slate-400 italic">No additional financing data available.</div>
-                )}
+                      {displayData ? (
+                        <>
+                          <div className="space-y-4">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3 italic">Personal & Residence</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                              <div><p className="text-[10px] font-bold text-slate-400 uppercase">DOB</p><p className="font-bold">{displayData.dob || 'N/A'}</p></div>
+                              <div><p className="text-[10px] font-bold text-slate-400 uppercase">Phone</p><p className="font-bold">{displayData.phone || selectedLead.phone || 'N/A'}</p></div>
+                              <div className="sm:col-span-2 text-primary bg-primary/5 p-3 rounded-xl border border-primary/10">
+                                <p className="text-[10px] font-bold uppercase mb-1">Current Address</p>
+                                <p className="font-black leading-tight">
+                                  {displayData.address}<br />
+                                  {displayData.city}, {displayData.state} {displayData.zip}
+                                </p>
+                                <p className="mt-2 text-[10px] font-bold">Duration: {displayData.duration_at_address}</p>
+                              </div>
+                            </div>
+                          </div>
 
-                {selectedLead.message && (
-                  <div className="space-y-2">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Additional Message</p>
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm text-slate-600 leading-relaxed italic">
-                      "{selectedLead.message}"
-                    </div>
-                  </div>
-                )}
+                          <div className="space-y-4">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest border-l-2 border-primary pl-3 italic">Identification</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+                              <div><p className="text-[10px] font-bold text-slate-400 uppercase">DL Number</p><p className="font-bold">{displayData.dl_number}</p></div>
+                              <div><p className="text-[10px] font-bold text-slate-400 uppercase">DL State</p><p className="font-bold">{displayData.dl_state}</p></div>
+                              <div><p className="text-[10px] font-bold text-slate-400 uppercase">Expiry</p><p className="font-bold">{displayData.dl_expiry}</p></div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="py-12 text-center text-slate-400 italic">No additional financing data available.</div>
+                      )}
+
+                      {displayMessage && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Additional Message</p>
+                          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-sm text-slate-600 leading-relaxed italic">
+                            "{displayMessage}"
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
               
               <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
