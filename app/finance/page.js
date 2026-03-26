@@ -39,11 +39,16 @@ const FinancePage = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024)
     window.addEventListener('resize', handleResize)
     
-    const fetchCars = async () => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setFormData(prev => ({ ...prev, email: user.email, name: user.user_metadata?.full_name || '' }))
+      }
+
       const { data } = await supabase.from('cars').select('id, make, model, year, reservation_fee, down_payment').eq('status', 'available')
       if (data) setCars(data)
     }
-    fetchCars()
+    init()
     
     return () => window.removeEventListener('resize', handleResize)
   }, [])
@@ -62,8 +67,12 @@ const FinancePage = () => {
     }
     setStatus('loading')
 
+    // Force authenticated user email if logged in to ensure dashboard sync
+    const { data: { user } } = await supabase.auth.getUser()
+    const submissionEmail = user ? user.email : formData.email
+
     const { 
-      name, email, phone, income, message, car_id,
+      name, phone, income, message, car_id,
       ...additionalData 
     } = formData
 
@@ -74,7 +83,7 @@ const FinancePage = () => {
 
     let { error } = await supabase.from('leads').insert([{ 
       name, 
-      email, 
+      email: submissionEmail, 
       phone, 
       income, 
       message: messageWithDetails, 
@@ -101,7 +110,7 @@ const FinancePage = () => {
       try {
         await notifyNewLead({
           name,
-          email,
+          email: submissionEmail,
           phone,
           income,
           car_name: selectedCar ? `${selectedCar.year} ${selectedCar.make} ${selectedCar.model}` : 'Generic Inquiry',

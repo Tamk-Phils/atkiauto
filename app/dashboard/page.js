@@ -29,6 +29,7 @@ const UserDashboardPage = () => {
   const [reservations, setReservations] = useState([])
   const [leads, setLeads] = useState([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('reservations')
   const [notifications, setNotifications] = useState([])
   const router = useRouter()
 
@@ -43,6 +44,8 @@ const UserDashboardPage = () => {
       }
       setUser(session.user)
 
+      const userEmail = session.user.email.toLowerCase().trim()
+
       // Fetch reservations
       const { data: resData } = await supabase
         .from('reservations')
@@ -52,11 +55,11 @@ const UserDashboardPage = () => {
       
       if (resData) setReservations(resData)
 
-      // Fetch Leads (Financing requests)
+      // Fetch Leads (Financing requests) - try email match
       const { data: leadsData } = await supabase
         .from('leads')
         .select(`*, cars (*)`)
-        .eq('email', session.user.email)
+        .eq('email', userEmail)
         .order('created_at', { ascending: false })
       
       if (leadsData) setLeads(leadsData)
@@ -70,9 +73,12 @@ const UserDashboardPage = () => {
           table: 'reservations',
           filter: `user_id=eq.${session.user.id}`
         }, (payload) => {
-          if (payload.eventType === 'UPDATE') {
+          if (payload.eventType === 'INSERT') {
+            setReservations(prev => [payload.new, ...prev])
+            addNotification(`New reservation created!`)
+          } else if (payload.eventType === 'UPDATE') {
             setReservations(prev => prev.map(r => r.id === payload.new.id ? { ...r, ...payload.new } : r))
-            addNotification(`Reservation for ${payload.new.id.split('-')[0]} updated: ${payload.new.status}`)
+            addNotification(`Reservation updated: ${payload.new.status}`)
           }
         })
         .subscribe()
@@ -82,12 +88,18 @@ const UserDashboardPage = () => {
         .on('postgres_changes', { 
           event: '*', 
           schema: 'public', 
-          table: 'leads',
-          filter: `email=eq.${session.user.email}`
+          table: 'leads'
         }, (payload) => {
-          if (payload.eventType === 'UPDATE') {
+          // Robust email filter for real-time (can't use filter in .on for complex logic, so check in callback if no column exists)
+          const leadEmail = (payload.new?.email || payload.old?.email || '').toLowerCase().trim()
+          if (leadEmail !== userEmail) return
+
+          if (payload.eventType === 'INSERT') {
+            setLeads(prev => [payload.new, ...prev])
+            addNotification(`Financing request submitted!`)
+          } else if (payload.eventType === 'UPDATE') {
             setLeads(prev => prev.map(l => l.id === payload.new.id ? { ...l, ...payload.new } : l))
-            addNotification(`Financing request updated: ${payload.new.status}`)
+            addNotification(`Financing status: ${payload.new.status}`)
           }
         })
         .subscribe()
@@ -158,105 +170,128 @@ const UserDashboardPage = () => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
           
-          {/* Profile Section */}
-          <DashboardCard title="Profile Information" icon={User}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div>
-                <label style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Email Address</label>
-                <div style={{ color: '#fff', fontSize: '0.95rem' }}>{user?.email}</div>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Account Status</label>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34,197,94,0.1)', color: '#4ade80', padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} /> Verified
+          {/* Left Column: Profile & Info */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <DashboardCard title="Profile Information" icon={User}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Email Address</label>
+                  <div style={{ color: '#fff', fontSize: '0.95rem' }}>{user?.email}</div>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.6rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: '0.4rem', display: 'block' }}>Account Status</label>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34,197,94,0.1)', color: '#4ade80', padding: '0.3rem 0.75rem', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} /> Verified
+                  </div>
                 </div>
               </div>
+            </DashboardCard>
+
+            <DashboardCard title="Direct Support" icon={MessageSquare}>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
+                Have questions about your reservation or need more details on a vehicle? Chat directly with our sales team.
+              </p>
+              <button 
+                onClick={() => window.dispatchEvent(new Event('openChat'))}
+                style={{ 
+                  width: '100%', padding: '0.875rem', background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '0.75rem',
+                  fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer'
+                }}
+              >
+                Open Live Chat
+              </button>
+            </DashboardCard>
+          </div>
+
+          {/* Right Column: Main Content with Tabs */}
+          <div style={{ gridColumn: 'span 2' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', background: 'rgba(255,255,255,0.03)', padding: '0.4rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <button 
+                onClick={() => setActiveTab('reservations')}
+                style={{ 
+                  flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: 'none', 
+                  background: activeTab === 'reservations' ? '#ef4444' : 'transparent',
+                  color: activeTab === 'reservations' ? '#fff' : 'rgba(255,255,255,0.4)',
+                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s',
+                  textTransform: 'uppercase', letterSpacing: '0.05em'
+                }}
+              >
+                Reservations ({reservations.length})
+              </button>
+              <button 
+                onClick={() => setActiveTab('finance')}
+                style={{ 
+                  flex: 1, padding: '0.75rem', borderRadius: '0.75rem', border: 'none', 
+                  background: activeTab === 'finance' ? '#ef4444' : 'transparent',
+                  color: activeTab === 'finance' ? '#fff' : 'rgba(255,255,255,0.4)',
+                  fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s',
+                  textTransform: 'uppercase', letterSpacing: '0.05em'
+                }}
+              >
+                Financing ({leads.length})
+              </button>
             </div>
-          </DashboardCard>
 
-          {/* Activity Section */}
-          <DashboardCard title="Recent Reservations" icon={Package}>
-            {reservations.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem 0', color: 'rgba(255,255,255,0.3)' }}>
-                <Car size={32} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                <p style={{ fontSize: '0.875rem' }}>No active reservations.</p>
-                <button 
-                  onClick={() => router.push('/inventory')}
-                  style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, marginTop: '1rem', cursor: 'pointer', fontSize: '0.8rem' }}
-                >
-                  Browse Inventory
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {reservations.map(res => (
-                  <div key={res.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>{res.cars?.year} {res.cars?.make} {res.cars?.model}</h4>
-                      <span style={{ fontSize: '0.67rem', color: res.status === 'completed' ? '#4ade80' : res.status === 'paid' ? '#3b82f6' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {res.status || 'Pending'}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '1rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Calendar size={12} /> {new Date(res.created_at).toLocaleDateString()}</span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{res.payment_status === 'paid' ? 'Paid' : 'Unpaid'}: ${res.fee}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </DashboardCard>
-
-          {/* Financing Section */}
-          <DashboardCard title="Financing Requests" icon={TrendingUp}>
-            {leads.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '2rem 0', color: 'rgba(255,255,255,0.3)' }}>
-                <TrendingUp size={32} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-                <p style={{ fontSize: '0.875rem' }}>No financing data found.</p>
-                <button 
-                  onClick={() => router.push('/finance')}
-                  style={{ background: 'none', border: 'none', color: '#ef4444', fontWeight: 700, marginTop: '1rem', cursor: 'pointer', fontSize: '0.8rem' }}
-                >
-                  Apply for Financing
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {leads.map(lead => (
-                  <div key={lead.id} style={{ padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.75rem', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 800 }}>{lead.cars?.make} Financing</h4>
-                      <span style={{ fontSize: '0.67rem', color: lead.status === 'responded' ? '#4ade80' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {lead.status === 'responded' ? 'Approved' : (lead.status || 'Under Review')}
-                      </span>
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Clock size={12} /> Received: {new Date(lead.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </DashboardCard>
-
-          {/* Support Section */}
-          <DashboardCard title="Direct Support" icon={MessageSquare}>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-              Have questions about your reservation or need more details on a vehicle? Chat directly with our sales team.
-            </p>
-            <button 
-              onClick={() => {
-                window.dispatchEvent(new Event('openChat'))
-              }}
-              style={{ 
-                width: '100%', padding: '0.875rem', background: 'rgba(255,255,255,0.05)', 
-                border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '0.75rem',
-                fontSize: '0.8rem', fontWeight: 800, cursor: 'pointer'
-              }}
-            >
-              Open Live Chat
-            </button>
-          </DashboardCard>
+            <AnimatePresence mode="wait">
+              {activeTab === 'reservations' ? (
+                <motion.div key="res" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
+                  <DashboardCard title="Active Reservations" icon={Package}>
+                    {reservations.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 0', color: 'rgba(255,255,255,0.3)' }}>
+                        <Car size={32} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                        <p style={{ fontSize: '0.875rem' }}>No active reservations.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {reservations.map(res => (
+                          <div key={res.id} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                              <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{res.cars?.year} {res.cars?.make} {res.cars?.model}</h4>
+                              <span style={{ fontSize: '0.67rem', color: res.status === 'completed' ? '#4ade80' : res.status === 'paid' ? '#3b82f6' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.2)', padding: '0.3rem 0.6rem', borderRadius: '0.5rem' }}>
+                                {res.status || 'Pending'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '1.5rem', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Calendar size={14} /> Reserved {new Date(res.created_at).toLocaleDateString()}</span>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>{res.payment_status === 'paid' ? '✓ Paid' : 'Pending Payment'}: ${res.fee}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </DashboardCard>
+                </motion.div>
+              ) : (
+                <motion.div key="fin" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+                  <DashboardCard title="Financing Status" icon={TrendingUp}>
+                    {leads.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 0', color: 'rgba(255,255,255,0.3)' }}>
+                        <TrendingUp size={32} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                        <p style={{ fontSize: '0.875rem' }}>No financing data found.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {leads.map(lead => (
+                          <div key={lead.id} style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                              <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{lead.cars?.make} Financing</h4>
+                              <span style={{ fontSize: '0.67rem', color: lead.status === 'responded' ? '#4ade80' : '#ef4444', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '0.05em', background: 'rgba(0,0,0,0.2)', padding: '0.3rem 0.6rem', borderRadius: '0.5rem' }}>
+                                {lead.status === 'responded' ? 'Approved' : (lead.status || 'Under Review')}
+                              </span>
+                            </div>
+                            <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Clock size={14} /> Submitted: {new Date(lead.created_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </DashboardCard>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
         </div>
       </div>
