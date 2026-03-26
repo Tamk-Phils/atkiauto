@@ -99,11 +99,10 @@ const Chat = () => {
 
         // Try to fetch user profile for better email info
         if (userId) {
-          const { data: profile } = await supabase.from('profiles').select('full_name, email, phone').eq('id', userId).single()
+          const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', userId).single()
           if (profile) {
             notifyData.name = profile.full_name || notifyData.name
             notifyData.email = profile.email
-            notifyData.phone = profile.phone
           }
         }
 
