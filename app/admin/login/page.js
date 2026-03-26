@@ -27,7 +27,7 @@ const AdminLoginPage = () => {
         sessionStorage.setItem('admin_auth', 'true')
         router.push('/admin')
       } else {
-        setError(`${result.error}. (Expected ${result.debug.expectedLength}, got ${result.debug.receivedLength})`)
+        setError(result.error)
         setLoading(false)
       }
     } catch (err) {
