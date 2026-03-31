@@ -21,12 +21,35 @@ const CarDetailClient = ({ initialCar }) => {
   const [showSuccess, setShowSuccess] = useState(false)
 
   useEffect(() => {
+    const fetchCar = async () => {
+      if (initialCar) {
+        setLoading(false)
+        return
+      }
+      
+      const { data } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('id', id)
+        .single()
+      
+      if (data) {
+        setCar(data)
+        setActiveImage(data.images?.[0] || data.image_url)
+      }
+      setLoading(false)
+    }
+
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setUser(session?.user || null)
     }
-    checkUser()
-  }, [])
+
+    if (id) {
+      fetchCar()
+      checkUser()
+    }
+  }, [id, initialCar])
 
   const handleReserve = async () => {
     if (!user) {

@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import CarDetailClient from './CarDetailClient'
 
 export async function generateMetadata({ params }) {
-  const id = params.id
+  const { id } = await params
   const { data: car } = await supabase
     .from('cars')
     .select('*')
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function Page({ params }) {
-  const id = params.id
+  const { id } = await params
   const { data: car } = await supabase
     .from('cars')
     .select('*')
